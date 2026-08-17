@@ -1,0 +1,76 @@
+#ifndef ZZZ_HAIR_VISIBILITY_CAPTURE_INCLUDED
+#define ZZZ_HAIR_VISIBILITY_CAPTURE_INCLUDED
+
+#ifndef ZZZ_HAIR_VISIBILITY_SUBSETS
+#define ZZZ_HAIR_VISIBILITY_SUBSETS "2147483647"
+#endif
+#ifndef ZZZ_HAIR_VISIBILITY_FACE_OCCLUDER_SUBSETS
+#define ZZZ_HAIR_VISIBILITY_FACE_OCCLUDER_SUBSETS "2147483647"
+#endif
+
+float4x4 ZZZ_HairVisibilityWorldViewProjection : WORLDVIEWPROJECTION;
+float4 ZZZ_HairVisibilityMaterialDiffuse : DIFFUSE < string Object = "Geometry"; >;
+bool use_texture;
+texture2D ZZZ_HairVisibilityMaterialTexture : MATERIALTEXTURE;
+sampler2D ZZZ_HairVisibilityMaterialSampler = sampler_state {
+    texture = <ZZZ_HairVisibilityMaterialTexture>;
+    MinFilter = LINEAR; MagFilter = LINEAR; MipFilter = NONE;
+    AddressU = CLAMP; AddressV = CLAMP;
+};
+
+struct ZZZ_HairVisibilityVaryings {
+    float4 positionCS : POSITION;
+    float2 depthZW : TEXCOORD0;
+    float2 uv : TEXCOORD1;
+};
+
+ZZZ_HairVisibilityVaryings ZZZ_HairVisibilityVS(float4 positionOS : POSITION, float2 uv : TEXCOORD0)
+{
+    ZZZ_HairVisibilityVaryings output;
+    output.positionCS = mul(positionOS, ZZZ_HairVisibilityWorldViewProjection);
+    output.depthZW = output.positionCS.zw;
+    output.uv = uv;
+    return output;
+}
+
+float3 ZZZ_HairVisibilityEncodeDepth(float depth)
+{
+    float3 packed = frac(depth * float3(1.0, 255.0, 65025.0));
+    packed.xy -= packed.yz / 255.0;
+    return packed;
+}
+
+float4 ZZZ_HairVisibilityPS(ZZZ_HairVisibilityVaryings input) : COLOR0
+{
+    float coverage = saturate(ZZZ_HairVisibilityMaterialDiffuse.a);
+    if (use_texture) coverage *= tex2D(ZZZ_HairVisibilityMaterialSampler, input.uv).a;
+    clip(coverage - 0.01);
+    float depth = saturate(input.depthZW.x / max(abs(input.depthZW.y), 1e-6));
+    return float4(ZZZ_HairVisibilityEncodeDepth(depth), 1.0);
+}
+
+float4 ZZZ_HairVisibilityMaskPS(ZZZ_HairVisibilityVaryings input) : COLOR0 { return 0.0; }
+
+#define ZZZ_HAIR_VISIBILITY_FACE_OCCLUDER_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; string Subset = ZZZ_HAIR_VISIBILITY_FACE_OCCLUDER_SUBSETS; > { pass CaptureFaceOccluder { \
+        ZEnable = true; ZWriteEnable = true; ZFunc = LESS; CullMode = NONE; AlphaTestEnable = false; AlphaBlendEnable = false; ColorWriteEnable = 15; \
+        VertexShader = compile vs_3_0 ZZZ_HairVisibilityVS(); PixelShader = compile ps_3_0 ZZZ_HairVisibilityMaskPS(); } }
+
+#define ZZZ_HAIR_VISIBILITY_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; string Subset = ZZZ_HAIR_VISIBILITY_SUBSETS; > { pass CaptureNearestHair { \
+        ZEnable = true; ZWriteEnable = true; ZFunc = LESS; CullMode = NONE; AlphaTestEnable = false; AlphaBlendEnable = false; ColorWriteEnable = 15; \
+        VertexShader = compile vs_3_0 ZZZ_HairVisibilityVS(); PixelShader = compile ps_3_0 ZZZ_HairVisibilityPS(); } }
+
+#define ZZZ_HAIR_VISIBILITY_DEFAULT_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; > { pass IgnoreOtherMaterials { \
+        ZEnable = false; ZWriteEnable = false; CullMode = NONE; AlphaTestEnable = false; AlphaBlendEnable = false; ColorWriteEnable = 0; \
+        VertexShader = compile vs_3_0 ZZZ_HairVisibilityVS(); PixelShader = compile ps_3_0 ZZZ_HairVisibilityMaskPS(); } }
+
+ZZZ_HAIR_VISIBILITY_TECHNIQUE(ZZZ_HairVisibilityObject, "object")
+ZZZ_HAIR_VISIBILITY_TECHNIQUE(ZZZ_HairVisibilityObjectSs, "object_ss")
+ZZZ_HAIR_VISIBILITY_FACE_OCCLUDER_TECHNIQUE(ZZZ_HairVisibilityFaceOccluder, "object")
+ZZZ_HAIR_VISIBILITY_FACE_OCCLUDER_TECHNIQUE(ZZZ_HairVisibilityFaceOccluderSs, "object_ss")
+ZZZ_HAIR_VISIBILITY_DEFAULT_TECHNIQUE(ZZZ_HairVisibilityMask, "object")
+ZZZ_HAIR_VISIBILITY_DEFAULT_TECHNIQUE(ZZZ_HairVisibilityMaskSs, "object_ss")
+
+#endif

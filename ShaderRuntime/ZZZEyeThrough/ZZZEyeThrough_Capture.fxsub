@@ -1,0 +1,14 @@
+// Manual EyeThrough configuration. PMX subset indices are zero-based.
+// Keep eye white excluded; capturing it produces a floating eye shell.
+#define ZZZ_EYE_THROUGH_HEAD_BONE "頭"
+#define ZZZ_EYE_THROUGH_EYE_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_OVERLAY_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_HIGHLIGHT_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_SCLERA_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_BROW_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_IGNORED_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_HAIR_DEPTH_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_SHIFTED_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_FACE_RESOURCE "../textures/common/neutral_base.png"
+
+#include "../internal/zzz_eye_through_capture_core.fxsub"

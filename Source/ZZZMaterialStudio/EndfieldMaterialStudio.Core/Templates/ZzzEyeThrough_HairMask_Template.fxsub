@@ -1,0 +1,111 @@
+// Screen-space fringe visibility mask for Jane Doe EyeThrough.
+// Hair subsets write white only when they are in front of the face. Other
+// materials never enter the mask, so the compositor cannot double the eyes.
+
+float4x4 ZzzEyeHairMaskWorldViewProjection : WORLDVIEWPROJECTION;
+float4 ZzzEyeHairMaskMaterialDiffuse : DIFFUSE <
+    string Object = "Geometry";
+>;
+bool use_texture;
+
+texture2D ZzzEyeHairMaskMaterialTexture : MATERIALTEXTURE;
+sampler2D ZzzEyeHairMaskMaterialSampler = sampler_state {
+    texture = <ZzzEyeHairMaskMaterialTexture>;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+    MipFilter = LINEAR;
+    AddressU = CLAMP;
+    AddressV = CLAMP;
+};
+
+struct ZzzEyeHairMaskVaryings {
+    float4 positionCS : POSITION;
+    float2 uv : TEXCOORD0;
+};
+
+ZzzEyeHairMaskVaryings ZzzEyeHairMaskVS(
+    float4 positionOS : POSITION,
+    float2 uv : TEXCOORD0)
+{
+    ZzzEyeHairMaskVaryings output;
+    output.positionCS = mul(
+        positionOS, ZzzEyeHairMaskWorldViewProjection);
+    output.uv = uv;
+    return output;
+}
+
+// Pull only the mask depth slightly toward the camera to survive far-distance depth quantization.
+ZzzEyeHairMaskVaryings ZzzEyeHairMaskHairVS(
+    float4 positionOS : POSITION,
+    float2 uv : TEXCOORD0)
+{
+    ZzzEyeHairMaskVaryings output = ZzzEyeHairMaskVS(positionOS, uv);
+    output.positionCS.z -= 0.0002 * output.positionCS.w;
+    return output;
+}
+
+float4 ZzzEyeHairMaskPS(ZzzEyeHairMaskVaryings input) : COLOR0
+{
+    float coverage = saturate(ZzzEyeHairMaskMaterialDiffuse.a);
+    if (use_texture) {
+        coverage *= tex2D(
+            ZzzEyeHairMaskMaterialSampler, input.uv).a;
+    }
+    clip(coverage - 0.01);
+    return float4(1.0, 1.0, 1.0, 1.0);
+}
+
+float4 ZzzEyeHairMaskClearPS(
+    ZzzEyeHairMaskVaryings input) : COLOR0
+{
+    return 0.0;
+}
+
+#define ZZZ_EYE_HAIR_MASK_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; \
+        string Subset = "13"; > { \
+        pass CaptureVisibleHair { \
+            ZEnable = true; ZWriteEnable = true; ZFunc = LESS; \
+            CullMode = NONE; AlphaTestEnable = false; \
+            AlphaBlendEnable = false; ColorWriteEnable = 15; \
+            VertexShader = compile vs_3_0 ZzzEyeHairMaskHairVS(); \
+            PixelShader = compile ps_3_0 ZzzEyeHairMaskPS(); \
+        } \
+    }
+
+#define ZZZ_EYE_HAIR_FACE_OCCLUDER_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; string Subset = "0"; > { \
+        pass CaptureFaceDepth { \
+            ZEnable = true; ZWriteEnable = true; ZFunc = LESS; \
+            CullMode = NONE; AlphaTestEnable = false; \
+            AlphaBlendEnable = false; ColorWriteEnable = 15; \
+            VertexShader = compile vs_3_0 ZzzEyeHairMaskVS(); \
+            PixelShader = compile ps_3_0 ZzzEyeHairMaskClearPS(); \
+        } \
+    }
+
+#define ZZZ_EYE_HAIR_MASK_DEFAULT_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; > { \
+        pass IgnoreOtherMaterials { \
+            ZEnable = false; ZWriteEnable = false; ZFunc = ALWAYS; \
+            CullMode = NONE; AlphaTestEnable = false; \
+            AlphaBlendEnable = false; ColorWriteEnable = 0; \
+            VertexShader = compile vs_3_0 ZzzEyeHairMaskVS(); \
+            PixelShader = compile ps_3_0 ZzzEyeHairMaskClearPS(); \
+        } \
+    }
+
+ZZZ_EYE_HAIR_MASK_TECHNIQUE(ZzzEyeHairMaskObject, "object")
+ZZZ_EYE_HAIR_MASK_TECHNIQUE(ZzzEyeHairMaskObjectSs, "object_ss")
+ZZZ_EYE_HAIR_FACE_OCCLUDER_TECHNIQUE(
+    ZzzEyeHairFaceOccluder, "object")
+ZZZ_EYE_HAIR_FACE_OCCLUDER_TECHNIQUE(
+    ZzzEyeHairFaceOccluderSs, "object_ss")
+ZZZ_EYE_HAIR_MASK_DEFAULT_TECHNIQUE(
+    ZzzEyeHairMaskDefault, "object")
+ZZZ_EYE_HAIR_MASK_DEFAULT_TECHNIQUE(
+    ZzzEyeHairMaskDefaultSs, "object_ss")
+
+technique ZzzEyeHairMaskEdge < string MMDPass = "edge"; > { }
+technique ZzzEyeHairMaskShadow < string MMDPass = "shadow"; > { }
+technique ZzzEyeHairMaskZPlot < string MMDPass = "zplot"; > { }

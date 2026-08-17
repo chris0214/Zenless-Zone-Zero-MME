@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+**/artifacts/
+**/__pycache__/
+*.user
+*.suo
+*.pdb
+*.fxo
+*.zzzstudio.json
+generated_json_profiles/

@@ -1,0 +1,233 @@
+#ifndef ZZZ_CLOTH_MATCAP_CONTROLS_INCLUDED
+#define ZZZ_CLOTH_MATCAP_CONTROLS_INCLUDED
+
+#define ZZZ_CLOTH_CONTROLLER_NAME "ZzzClothMatCap_controller.pmx"
+#define ZZZ_CLOTH_CONTROL(symbol, morphName) \
+    float symbol : CONTROLOBJECT < \
+        string name = ZZZ_CLOTH_CONTROLLER_NAME; \
+        string item = morphName; \
+    >
+
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlBrightnessP, "àﬂëïñæìx+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlBrightnessM, "àﬂëïñæìx-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlShadowPositionP, "àﬂëïâAâeà íu+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlShadowPositionM, "àﬂëïâAâeà íu-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlShadowSoftnessP, "àﬂëïâAâeè_+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlShadowSoftnessM, "àﬂëïâAâeè_-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlShadowStrengthP, "àﬂëïâAâeã≠+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlShadowStrengthM, "àﬂëïâAâeã≠-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularStrengthP, "àﬂëïçÇåıã≠+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularStrengthM, "àﬂëïçÇåıã≠-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularMaskP, "àﬂëïçÇåıé’ï¡+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularMaskM, "àﬂëïçÇåıé’ï¡-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularRangeP, "àﬂëïçÇåıîÕàÕ+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularRangeM, "àﬂëïçÇåıîÕàÕ-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlGlossinessP, "àﬂëïçÇåıåıää+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlGlossinessM, "àﬂëïçÇåıåıää-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularRP, "àﬂëïçÇåıê‘+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularRM, "àﬂëïçÇåıê‘-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularGP, "àﬂëïçÇåıóŒ+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularGM, "àﬂëïçÇåıóŒ-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularBP, "àﬂëïçÇåıê¬+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlSpecularBM, "àﬂëïçÇåıê¬-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlRimStrengthP, "àﬂëïï”åıã≠+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlRimStrengthM, "àﬂëïï”åıã≠-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlRimWidthP, "àﬂëïï”åıïù+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlRimWidthM, "àﬂëïï”åıïù-");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlRimHardnessP, "àﬂëïï”åıçd+");
+ZZZ_CLOTH_CONTROL(ZzzClothCtrlRimHardnessM, "àﬂëïï”åıçd-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMasterP, "ãÖñ ëSëÃã≠+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMasterM, "ãÖñ ëSëÃã≠-");
+
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthP1, "ãÖñ ëÖ1ã≠+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthM1, "ãÖñ ëÖ1ã≠-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessP1, "ãÖñ ëÖ1ñæ+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessM1, "ãÖñ ëÖ1ñæ-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskP1, "ãÖñ ëÖ1é’ï¡+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskM1, "ãÖñ ëÖ1é’ï¡-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlDisable1, "ãÖñ ëÖ1ï¬");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthP2, "ãÖñ ëÖ2ã≠+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthM2, "ãÖñ ëÖ2ã≠-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessP2, "ãÖñ ëÖ2ñæ+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessM2, "ãÖñ ëÖ2ñæ-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskP2, "ãÖñ ëÖ2é’ï¡+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskM2, "ãÖñ ëÖ2é’ï¡-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlDisable2, "ãÖñ ëÖ2ï¬");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthP3, "ãÖñ ëÖ3ã≠+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthM3, "ãÖñ ëÖ3ã≠-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessP3, "ãÖñ ëÖ3ñæ+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessM3, "ãÖñ ëÖ3ñæ-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskP3, "ãÖñ ëÖ3é’ï¡+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskM3, "ãÖñ ëÖ3é’ï¡-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlDisable3, "ãÖñ ëÖ3ï¬");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthP4, "ãÖñ ëÖ4ã≠+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthM4, "ãÖñ ëÖ4ã≠-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessP4, "ãÖñ ëÖ4ñæ+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessM4, "ãÖñ ëÖ4ñæ-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskP4, "ãÖñ ëÖ4é’ï¡+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskM4, "ãÖñ ëÖ4é’ï¡-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlDisable4, "ãÖñ ëÖ4ï¬");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthP5, "ãÖñ ëÖ5ã≠+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlStrengthM5, "ãÖñ ëÖ5ã≠-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessP5, "ãÖñ ëÖ5ñæ+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlBrightnessM5, "ãÖñ ëÖ5ñæ-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskP5, "ãÖñ ëÖ5é’ï¡+");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlMaskM5, "ãÖñ ëÖ5é’ï¡-");
+ZZZ_CLOTH_CONTROL(ZzzMatcapCtrlDisable5, "ãÖñ ëÖ5ï¬");
+#undef ZZZ_CLOTH_CONTROL
+
+float ZzzClothCtrlSigned(float positive, float negative)
+{
+    return saturate(positive) - saturate(negative);
+}
+
+float ZzzClothCtrlBounded(
+    float baseValue,
+    float positive,
+    float negative,
+    float minimumValue,
+    float maximumValue)
+{
+    float neutral = clamp(baseValue, minimumValue, maximumValue);
+    float control = ZzzClothCtrlSigned(positive, negative);
+    return clamp(
+        neutral
+            + (maximumValue - neutral) * max(control, 0.0)
+            - (neutral - minimumValue) * max(-control, 0.0),
+        minimumValue,
+        maximumValue);
+}
+
+float ZzzClothCtrlMultiplier(float positive, float negative, float maximumValue)
+{
+    return lerp(1.0, maximumValue, saturate(positive))
+        * (1.0 - saturate(negative));
+}
+
+float3 ZzzClothCtrlRgb(float3 positive, float3 negative, float maximumValue)
+{
+    return max(
+        lerp(1.0.xxx, maximumValue.xxx, saturate(positive))
+            * (1.0.xxx - saturate(negative)),
+        0.0.xxx);
+}
+
+float ZzzClothControlledBrightness(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlBrightnessP, ZzzClothCtrlBrightnessM, 0.0, 3.0);
+}
+
+float ZzzClothControlledShadowBias(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlShadowPositionP, ZzzClothCtrlShadowPositionM, -1.0, 1.0);
+}
+
+float ZzzClothControlledShadowSoftness(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlShadowSoftnessP, ZzzClothCtrlShadowSoftnessM, 0.001, 0.5);
+}
+
+float ZzzClothControlledShadowStrength(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlShadowStrengthP, ZzzClothCtrlShadowStrengthM, 0.0, 1.0);
+}
+
+float ZzzClothControlledSpecularStrength(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlSpecularStrengthP, ZzzClothCtrlSpecularStrengthM, 0.0, 4.0);
+}
+
+float ZzzClothControlledSpecularMask(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlSpecularMaskP, ZzzClothCtrlSpecularMaskM, 0.0, 4.0);
+}
+
+float ZzzClothControlledSpecularRange(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlSpecularRangeP, ZzzClothCtrlSpecularRangeM, 0.1, 2.0);
+}
+
+float ZzzClothControlledGlossiness(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlGlossinessP, ZzzClothCtrlGlossinessM, 0.0, 1.0);
+}
+
+float3 ZzzClothControlledSpecularColor(float3 value)
+{
+    return max(value, 0.0.xxx) * ZzzClothCtrlRgb(
+        float3(ZzzClothCtrlSpecularRP, ZzzClothCtrlSpecularGP, ZzzClothCtrlSpecularBP),
+        float3(ZzzClothCtrlSpecularRM, ZzzClothCtrlSpecularGM, ZzzClothCtrlSpecularBM),
+        4.0);
+}
+
+float ZzzClothControlledRimStrength(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlRimStrengthP, ZzzClothCtrlRimStrengthM, 0.0, 4.0);
+}
+
+float ZzzClothControlledRimWidth(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlRimWidthP, ZzzClothCtrlRimWidthM, 0.05, 4.0);
+}
+
+float ZzzClothControlledRimContrast(float value)
+{
+    return ZzzClothCtrlBounded(value, ZzzClothCtrlRimHardnessP, ZzzClothCtrlRimHardnessM, 0.1, 8.0);
+}
+
+float ZzzMatcapSelect5(float slotId, float a, float b, float c, float d, float e)
+{
+    float w1 = 1.0 - step(0.5, slotId);
+    float w2 = step(0.5, slotId) * (1.0 - step(1.5, slotId));
+    float w3 = step(1.5, slotId) * (1.0 - step(2.5, slotId));
+    float w4 = step(2.5, slotId) * (1.0 - step(3.5, slotId));
+    float w5 = step(3.5, slotId);
+    return a * w1 + b * w2 + c * w3 + d * w4 + e * w5;
+}
+
+float ZzzMatcapControlledMasterStrength()
+{
+    return ZzzClothCtrlMultiplier(ZzzMatcapCtrlMasterP, ZzzMatcapCtrlMasterM, 4.0);
+}
+
+float ZzzMatcapControlledSlotStrength(float slotId)
+{
+    float positive = ZzzMatcapSelect5(slotId,
+        ZzzMatcapCtrlStrengthP1, ZzzMatcapCtrlStrengthP2, ZzzMatcapCtrlStrengthP3,
+        ZzzMatcapCtrlStrengthP4, ZzzMatcapCtrlStrengthP5);
+    float negative = ZzzMatcapSelect5(slotId,
+        ZzzMatcapCtrlStrengthM1, ZzzMatcapCtrlStrengthM2, ZzzMatcapCtrlStrengthM3,
+        ZzzMatcapCtrlStrengthM4, ZzzMatcapCtrlStrengthM5);
+    return ZzzClothCtrlMultiplier(positive, negative, 4.0);
+}
+
+float ZzzMatcapControlledSlotBrightness(float slotId)
+{
+    float positive = ZzzMatcapSelect5(slotId,
+        ZzzMatcapCtrlBrightnessP1, ZzzMatcapCtrlBrightnessP2, ZzzMatcapCtrlBrightnessP3,
+        ZzzMatcapCtrlBrightnessP4, ZzzMatcapCtrlBrightnessP5);
+    float negative = ZzzMatcapSelect5(slotId,
+        ZzzMatcapCtrlBrightnessM1, ZzzMatcapCtrlBrightnessM2, ZzzMatcapCtrlBrightnessM3,
+        ZzzMatcapCtrlBrightnessM4, ZzzMatcapCtrlBrightnessM5);
+    return ZzzClothCtrlMultiplier(positive, negative, 4.0);
+}
+
+float ZzzMatcapControlledSlotMask(float slotId)
+{
+    float positive = ZzzMatcapSelect5(slotId,
+        ZzzMatcapCtrlMaskP1, ZzzMatcapCtrlMaskP2, ZzzMatcapCtrlMaskP3,
+        ZzzMatcapCtrlMaskP4, ZzzMatcapCtrlMaskP5);
+    float negative = ZzzMatcapSelect5(slotId,
+        ZzzMatcapCtrlMaskM1, ZzzMatcapCtrlMaskM2, ZzzMatcapCtrlMaskM3,
+        ZzzMatcapCtrlMaskM4, ZzzMatcapCtrlMaskM5);
+    return ZzzClothCtrlMultiplier(positive, negative, 2.0);
+}
+
+float ZzzMatcapControlledSlotEnabled(float slotId)
+{
+    return 1.0 - saturate(ZzzMatcapSelect5(slotId,
+        ZzzMatcapCtrlDisable1, ZzzMatcapCtrlDisable2, ZzzMatcapCtrlDisable3,
+        ZzzMatcapCtrlDisable4, ZzzMatcapCtrlDisable5));
+}
+
+#endif

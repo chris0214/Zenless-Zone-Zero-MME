@@ -1,0 +1,244 @@
+#ifndef ZZZ_EYE_THROUGH_CAPTURE_INCLUDED
+#define ZZZ_EYE_THROUGH_CAPTURE_INCLUDED
+
+#include "../internal/zzz_eye_through_contract.hlsl"
+
+float4x4 ZZZ_EyeEyeCaptureWorldViewProjection : WORLDVIEWPROJECTION;
+float4x4 ZZZ_EyeEyeCaptureWorld : WORLD;
+float4x4 ZZZ_EyeEyeCaptureViewProjection : VIEWPROJECTION;
+float3 ZZZ_EyeEyeCaptureCameraPosition : POSITION < string Object = "Camera"; >;
+float4 ZZZ_EyeEyeCaptureMaterialDiffuse : DIFFUSE < string Object = "Geometry"; >;
+bool use_texture;
+texture2D ZZZ_EyeEyeCaptureMaterialTexture : MATERIALTEXTURE;
+sampler2D ZZZ_EyeEyeCaptureMaterialSampler = sampler_state {
+    texture = <ZZZ_EyeEyeCaptureMaterialTexture>;
+    MinFilter = LINEAR; MagFilter = LINEAR; MipFilter = LINEAR;
+    AddressU = CLAMP; AddressV = CLAMP;
+};
+
+#ifndef ZZZ_EYE_THROUGH_FACE_RESOURCE
+#define ZZZ_EYE_THROUGH_FACE_RESOURCE "../textures/common/neutral_base.png"
+#endif
+
+texture2D ZZZ_EyeEyeCaptureFaceTexture <
+    string ResourceName = ZZZ_EYE_THROUGH_FACE_RESOURCE;
+    string Format = "A8R8G8B8";
+>;
+sampler2D ZZZ_EyeEyeCaptureFaceSampler = sampler_state {
+    texture = <ZZZ_EyeEyeCaptureFaceTexture>;
+    MinFilter = ANISOTROPIC; MagFilter = ANISOTROPIC;
+    MipFilter = ANISOTROPIC; MaxAnisotropy = 8;
+    AddressU = CLAMP; AddressV = CLAMP;
+};
+
+float4x4 ZZZ_EyeEyeCaptureHeadBone : CONTROLOBJECT <
+    string name = "(self)";
+    string item = ZZZ_EYE_THROUGH_HEAD_BONE;
+>;
+
+struct ZZZ_EyeEyeCaptureVaryings {
+    float4 positionCS : POSITION;
+    float2 uv : TEXCOORD0;
+    float facingFade : TEXCOORD1;
+    float distanceFade : TEXCOORD2;
+};
+
+float ZZZ_EyeEyeCaptureDepthPush = 3.0;
+
+float ZZZ_EyeEyeCaptureFacing(float3 positionWS)
+{
+    float3 axis = ZZZ_EyeEyeCaptureHeadBone._31_32_33;
+    float3 front = normalize((-axis) + float3(1e-5, 0.0, 0.0));
+    float3 toCamera = normalize(ZZZ_EyeEyeCaptureCameraPosition - positionWS);
+    return clamp(dot(front, toCamera), -1.0, 1.0);
+}
+
+float ZZZ_EyeEyeCaptureFacingFade(float facing)
+{
+    return smoothstep(0.069756, 0.72, saturate(facing));
+}
+
+float ZZZ_EyeEyeCaptureDistanceFade(float3 positionWS)
+{
+    float distanceToCamera = length(ZZZ_EyeEyeCaptureCameraPosition - positionWS);
+    return 1.0 - smoothstep(26.0, 38.0, distanceToCamera);
+}
+
+ZZZ_EyeEyeCaptureVaryings ZZZ_EyeEyeCaptureVS(
+    float4 positionOS : POSITION, float3 normalOS : NORMAL, float2 uv : TEXCOORD0)
+{
+    ZZZ_EyeEyeCaptureVaryings output;
+    output.positionCS = mul(positionOS, ZZZ_EyeEyeCaptureWorldViewProjection);
+    float3 positionWS = mul(positionOS, ZZZ_EyeEyeCaptureWorld).xyz;
+    output.uv = uv;
+    output.facingFade = ZZZ_EyeEyeCaptureFacingFade(ZZZ_EyeEyeCaptureFacing(positionWS));
+    output.distanceFade = ZZZ_EyeEyeCaptureDistanceFade(positionWS);
+    return output;
+}
+
+ZZZ_EyeEyeCaptureVaryings ZZZ_EyeEyeCaptureFrontFeatureVS(
+    float4 positionOS : POSITION, float3 normalOS : NORMAL, float2 uv : TEXCOORD0)
+{
+    ZZZ_EyeEyeCaptureVaryings output = ZZZ_EyeEyeCaptureVS(
+        positionOS, normalOS, uv);
+    // Keep the close-shot decal bias, but remove it as EyeThrough fades out.
+    // A fixed clip-space push becomes a visible ordering error when brows
+    // collapse to a few pixels at long camera distances.
+    output.positionCS.z -= 0.0004
+        * saturate(output.distanceFade)
+        * output.positionCS.w;
+    return output;
+}
+
+ZZZ_EyeEyeCaptureVaryings ZZZ_EyeEyeCaptureShiftedVS(
+    float4 positionOS : POSITION, float3 normalOS : NORMAL, float2 uv : TEXCOORD0)
+{
+    ZZZ_EyeEyeCaptureVaryings output;
+    float3 positionWS = mul(positionOS, ZZZ_EyeEyeCaptureWorld).xyz;
+    float3 awayFromCamera = normalize(
+        positionWS - ZZZ_EyeEyeCaptureCameraPosition + float3(1e-5, 0.0, 0.0));
+    positionWS += awayFromCamera * max(ZZZ_EyeEyeCaptureDepthPush, 0.0);
+    output.positionCS = mul(float4(positionWS, 1.0), ZZZ_EyeEyeCaptureViewProjection);
+    output.uv = uv;
+    output.facingFade = 0.0;
+    output.distanceFade = 0.0;
+    return output;
+}
+
+ZZZ_EyeEyeCaptureVaryings ZZZ_EyeEyeCaptureHighlightVS(
+    float4 positionOS : POSITION, float3 normalOS : NORMAL, float2 uv : TEXCOORD0)
+{
+    ZZZ_EyeEyeCaptureVaryings output = ZZZ_EyeEyeCaptureVS(
+        positionOS, normalOS, uv);
+    // Keep the highlight in front of the iris, but let the bias converge to
+    // zero with the distance fade so distant eye layers do not pop forward.
+    output.positionCS.z -= 0.0003
+        * saturate(output.distanceFade)
+        * output.positionCS.w;
+    return output;
+}
+
+float4 ZZZ_EyeEyeCaptureFeaturePS(
+    ZZZ_EyeEyeCaptureVaryings input,
+    uniform float alphaScale,
+    uniform bool useAtlasAlpha) : COLOR0
+{
+    float4 color = ZZZ_EyeEyeCaptureMaterialDiffuse;
+    if (use_texture) {
+        // The PMX texture copy has an opaque replacement Alpha. Read the
+        // preserved MME atlas so authored lashes/brows/overlays are clipped
+        // by their real mask instead of exposing the whole polygon shell.
+        float4 atlas = tex2D(ZZZ_EyeEyeCaptureFaceSampler, input.uv);
+        color.rgb *= atlas.rgb;
+        if (useAtlasAlpha) color.a *= atlas.a;
+    }
+    color.a *= input.facingFade * input.distanceFade * saturate(alphaScale);
+    clip(color.a - 1e-4);
+    return saturate(color);
+}
+
+float4 ZZZ_EyeEyeCaptureHighlightPS(
+    ZZZ_EyeEyeCaptureVaryings input) : COLOR0
+{
+    float4 color = ZZZ_EyeEyeCaptureMaterialDiffuse;
+    if (use_texture) {
+        color.rgb *= tex2D(
+            ZZZ_EyeEyeCaptureFaceSampler, input.uv).rgb;
+    }
+    color.a *= input.facingFade * input.distanceFade;
+    clip(color.a - 1e-4);
+    return saturate(color);
+}
+
+float4 ZZZ_EyeEyeCaptureMaskPS(ZZZ_EyeEyeCaptureVaryings input) : COLOR0 { return 0.0; }
+
+#define ZZZ_EYE_CAPTURE_FEATURE_TECHNIQUE( \
+    name, passName, subsetValue, alphaValue, useAtlasAlphaValue) \
+    technique name < string MMDPass = passName; string Subset = subsetValue; > { \
+        pass DrawObject { ZEnable = true; ZWriteEnable = true; ZFunc = LESSEQUAL; CullMode = NONE; \
+            AlphaTestEnable = false; AlphaBlendEnable = false; \
+            VertexShader = compile vs_3_0 ZZZ_EyeEyeCaptureVS(); \
+            PixelShader = compile ps_3_0 ZZZ_EyeEyeCaptureFeaturePS( \
+                alphaValue, useAtlasAlphaValue); } }
+
+#define ZZZ_EYE_CAPTURE_FRONT_FEATURE_TECHNIQUE( \
+    name, passName, subsetValue, alphaValue, useAtlasAlphaValue) \
+    technique name < string MMDPass = passName; string Subset = subsetValue; > { \
+        pass DrawObject { ZEnable = true; ZWriteEnable = true; \
+            ZFunc = LESSEQUAL; CullMode = NONE; \
+            AlphaTestEnable = false; AlphaBlendEnable = false; \
+            VertexShader = compile vs_3_0 ZZZ_EyeEyeCaptureFrontFeatureVS(); \
+            PixelShader = compile ps_3_0 ZZZ_EyeEyeCaptureFeaturePS( \
+                alphaValue, useAtlasAlphaValue); } }
+
+#define ZZZ_EYE_CAPTURE_MASK_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; > { pass DrawObject { \
+        ZEnable = true; ZWriteEnable = true; ZFunc = LESS; CullMode = NONE; \
+        AlphaTestEnable = false; AlphaBlendEnable = false; ColorWriteEnable = 0; \
+        VertexShader = compile vs_3_0 ZZZ_EyeEyeCaptureVS(); \
+        PixelShader = compile ps_3_0 ZZZ_EyeEyeCaptureMaskPS(); } }
+
+#define ZZZ_EYE_CAPTURE_HIGHLIGHT_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; \
+        string Subset = ZZZ_EYE_THROUGH_HIGHLIGHT_SUBSETS; > { \
+        pass DrawObject { \
+            ZEnable = true; ZWriteEnable = true; ZFunc = LESSEQUAL; \
+            CullMode = NONE; AlphaTestEnable = false; \
+            AlphaBlendEnable = true; SrcBlend = SRCALPHA; \
+            DestBlend = INVSRCALPHA; BlendOp = ADD; \
+            VertexShader = compile vs_3_0 ZZZ_EyeEyeCaptureHighlightVS(); \
+            PixelShader = compile ps_3_0 ZZZ_EyeEyeCaptureHighlightPS(); } }
+
+#define ZZZ_EYE_CAPTURE_SUBSET_MASK_TECHNIQUE(name, passName, subsetValue, shiftedValue, colorWriteValue) \
+    technique name < string MMDPass = passName; string Subset = subsetValue; > { pass DrawObject { \
+        ZEnable = true; ZWriteEnable = true; ZFunc = LESS; CullMode = NONE; \
+        AlphaTestEnable = false; AlphaBlendEnable = false; ColorWriteEnable = colorWriteValue; \
+        VertexShader = compile vs_3_0 shiftedValue(); \
+        PixelShader = compile ps_3_0 ZZZ_EyeEyeCaptureMaskPS(); } }
+
+#define ZZZ_EYE_CAPTURE_IGNORE_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; string Subset = ZZZ_EYE_THROUGH_IGNORED_SUBSETS; > { pass IgnoreObject { \
+        ZEnable = false; ZWriteEnable = false; ZFunc = ALWAYS; CullMode = NONE; \
+        AlphaTestEnable = false; AlphaBlendEnable = false; ColorWriteEnable = 0; \
+        VertexShader = compile vs_3_0 ZZZ_EyeEyeCaptureVS(); \
+        PixelShader = compile ps_3_0 ZZZ_EyeEyeCaptureMaskPS(); } }
+
+ZZZ_EYE_CAPTURE_FEATURE_TECHNIQUE(
+    ZZZ_EyeEyeCaptureEyes, "object", ZZZ_EYE_THROUGH_EYE_SUBSETS,
+    1.0, false)
+ZZZ_EYE_CAPTURE_FEATURE_TECHNIQUE(
+    ZZZ_EyeEyeCaptureEyesSs, "object_ss", ZZZ_EYE_THROUGH_EYE_SUBSETS,
+    1.0, false)
+ZZZ_EYE_CAPTURE_FRONT_FEATURE_TECHNIQUE(
+    ZZZ_EyeEyeCaptureOverlays, "object",
+    ZZZ_EYE_THROUGH_OVERLAY_SUBSETS, 1.0, true)
+ZZZ_EYE_CAPTURE_FRONT_FEATURE_TECHNIQUE(
+    ZZZ_EyeEyeCaptureOverlaysSs, "object_ss",
+    ZZZ_EYE_THROUGH_OVERLAY_SUBSETS, 1.0, true)
+ZZZ_EYE_CAPTURE_HIGHLIGHT_TECHNIQUE(ZZZ_EyeEyeCaptureHighlights, "object")
+ZZZ_EYE_CAPTURE_HIGHLIGHT_TECHNIQUE(ZZZ_EyeEyeCaptureHighlightsSs, "object_ss")
+ZZZ_EYE_CAPTURE_FEATURE_TECHNIQUE(
+    ZZZ_EyeEyeCaptureSclera, "object", ZZZ_EYE_THROUGH_SCLERA_SUBSETS,
+    1.0, false)
+ZZZ_EYE_CAPTURE_FEATURE_TECHNIQUE(
+    ZZZ_EyeEyeCaptureScleraSs, "object_ss", ZZZ_EYE_THROUGH_SCLERA_SUBSETS,
+    1.0, false)
+ZZZ_EYE_CAPTURE_FRONT_FEATURE_TECHNIQUE(
+    ZZZ_EyeEyeCaptureBrows, "object", ZZZ_EYE_THROUGH_BROW_SUBSETS,
+    0.55, true)
+ZZZ_EYE_CAPTURE_FRONT_FEATURE_TECHNIQUE(
+    ZZZ_EyeEyeCaptureBrowsSs, "object_ss", ZZZ_EYE_THROUGH_BROW_SUBSETS,
+    0.55, true)
+ZZZ_EYE_CAPTURE_IGNORE_TECHNIQUE(ZZZ_EyeEyeCaptureIgnore, "object")
+ZZZ_EYE_CAPTURE_IGNORE_TECHNIQUE(ZZZ_EyeEyeCaptureIgnoreSs, "object_ss")
+ZZZ_EYE_CAPTURE_SUBSET_MASK_TECHNIQUE(ZZZ_EyeEyeCaptureHairDepth, "object", ZZZ_EYE_THROUGH_HAIR_DEPTH_SUBSETS, ZZZ_EyeEyeCaptureShiftedVS, 0)
+ZZZ_EYE_CAPTURE_SUBSET_MASK_TECHNIQUE(ZZZ_EyeEyeCaptureHairDepthSs, "object_ss", ZZZ_EYE_THROUGH_HAIR_DEPTH_SUBSETS, ZZZ_EyeEyeCaptureShiftedVS, 0)
+ZZZ_EYE_CAPTURE_SUBSET_MASK_TECHNIQUE(ZZZ_EyeEyeCaptureShifted, "object", ZZZ_EYE_THROUGH_SHIFTED_SUBSETS, ZZZ_EyeEyeCaptureShiftedVS, 15)
+ZZZ_EYE_CAPTURE_SUBSET_MASK_TECHNIQUE(ZZZ_EyeEyeCaptureShiftedSs, "object_ss", ZZZ_EYE_THROUGH_SHIFTED_SUBSETS, ZZZ_EyeEyeCaptureShiftedVS, 15)
+ZZZ_EYE_CAPTURE_MASK_TECHNIQUE(ZZZ_EyeEyeCaptureDefault, "object")
+ZZZ_EYE_CAPTURE_MASK_TECHNIQUE(ZZZ_EyeEyeCaptureDefaultSs, "object_ss")
+technique ZZZ_EyeEyeCaptureEdge < string MMDPass = "edge"; > { }
+technique ZZZ_EyeEyeCaptureShadow < string MMDPass = "shadow"; > { }
+technique ZZZ_EyeEyeCaptureZPlot < string MMDPass = "zplot"; > { }
+
+#endif

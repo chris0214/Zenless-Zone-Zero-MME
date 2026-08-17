@@ -1,0 +1,39 @@
+// Strict depth mask used by the eye-through feature RT.
+float4x4 ZZZ_EyeEyeMaskWorldViewProjection : WORLDVIEWPROJECTION;
+
+struct ZZZ_EyeEyeMaskVaryings {
+    float4 positionCS : POSITION;
+};
+
+ZZZ_EyeEyeMaskVaryings ZZZ_EyeEyeMaskVS(float4 positionOS : POSITION)
+{
+    ZZZ_EyeEyeMaskVaryings output;
+    output.positionCS = mul(positionOS, ZZZ_EyeEyeMaskWorldViewProjection);
+    return output;
+}
+
+float4 ZZZ_EyeEyeMaskPS(ZZZ_EyeEyeMaskVaryings input) : COLOR0
+{
+    return 0.0;
+}
+
+#define ZZZ_EYE_MASK_TECHNIQUE(name, passName) \
+    technique name < string MMDPass = passName; > { \
+        pass DrawObject { \
+            ZEnable = true; \
+            ZWriteEnable = true; \
+            ZFunc = LESS; \
+            CullMode = NONE; \
+            AlphaTestEnable = false; \
+            AlphaBlendEnable = false; \
+            ColorWriteEnable = 0; \
+            VertexShader = compile vs_3_0 ZZZ_EyeEyeMaskVS(); \
+            PixelShader = compile ps_3_0 ZZZ_EyeEyeMaskPS(); \
+        } \
+    }
+
+ZZZ_EYE_MASK_TECHNIQUE(ZZZ_EyeEyeMaskObject, "object")
+ZZZ_EYE_MASK_TECHNIQUE(ZZZ_EyeEyeMaskObjectSs, "object_ss")
+technique ZZZ_EyeEyeMaskEdge < string MMDPass = "edge"; > { }
+technique ZZZ_EyeEyeMaskShadow < string MMDPass = "shadow"; > { }
+technique ZZZ_EyeEyeMaskZPlot < string MMDPass = "zplot"; > { }

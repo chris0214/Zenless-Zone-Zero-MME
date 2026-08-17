@@ -1,0 +1,12 @@
+// Jane Doe material layout. PMX subset indices are zero-based.
+#define ZZZ_EYE_THROUGH_HEAD_BONE "î^"
+#define ZZZ_EYE_THROUGH_EYE_SUBSETS "2,3"
+#define ZZZ_EYE_THROUGH_OVERLAY_SUBSETS "4,7,9"
+#define ZZZ_EYE_THROUGH_HIGHLIGHT_SUBSETS "8"
+#define ZZZ_EYE_THROUGH_SCLERA_SUBSETS "2147483647"
+#define ZZZ_EYE_THROUGH_BROW_SUBSETS "5,6"
+#define ZZZ_EYE_THROUGH_IGNORED_SUBSETS "10,11,12,14,15,16,17"
+#define ZZZ_EYE_THROUGH_HAIR_DEPTH_SUBSETS "13"
+#define ZZZ_EYE_THROUGH_SHIFTED_SUBSETS "2147483647"
+
+#include "../internal/zzz_eye_through_capture_core.fxsub"
