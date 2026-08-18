@@ -340,20 +340,39 @@ public sealed class PackageBuilder
             var source = material.Textures;
             var packaged = new TextureSlots();
             packaged.Base = Copy("base", material.UsePmxBaseTexture ? material.PmxBaseTexture : source.Base);
-            packaged.Normal = Copy("normal", source.Normal);
-            packaged.Property = Copy("property", source.Property);
-            packaged.Rd = Copy("rd", source.Rd);
-            packaged.Rs = Copy("rs", source.Rs);
-            packaged.Lut = Copy("lut", source.Lut);
-            packaged.Sdf = Copy("sdf", source.Sdf);
-            packaged.St = Copy("st", source.St);
-            packaged.ColorMask = Copy("color_mask", source.ColorMask);
-            packaged.LipSpecular = Copy("lip_specular", source.LipSpecular);
-            packaged.HairLine = Copy("hair_line", source.HairLine);
-            for (var slot = 1; slot <= 5; slot++)
+            if (project.RuntimeKind == ShaderRuntimeKind.ZzzMme)
             {
-                var binding = material.Zzz.GetMatCap(slot);
-                packaged.MatCaps[slot] = Copy($"matcap_{slot}", binding.EffectiveTexturePath);
+                if (material.Role == MaterialRole.Face)
+                    packaged.Sdf = Copy("sdf", source.Sdf);
+                else if (material.Role is MaterialRole.Hair or MaterialRole.Skin or MaterialRole.Cloth)
+                {
+                    packaged.Normal = Copy("normal", source.Normal);
+                    packaged.Property = Copy("property", source.Property);
+                    packaged.Rs = Copy("attribute", source.Rs);
+                    for (var slot = 1; slot <= 5; slot++)
+                    {
+                        var binding = material.Zzz.GetMatCap(slot);
+                        packaged.MatCaps[slot] = Copy($"matcap_{slot}", binding.EffectiveTexturePath);
+                    }
+                }
+            }
+            else
+            {
+                packaged.Normal = Copy("normal", source.Normal);
+                packaged.Property = Copy("property", source.Property);
+                packaged.Rd = Copy("rd", source.Rd);
+                packaged.Rs = Copy("rs", source.Rs);
+                packaged.Lut = Copy("lut", source.Lut);
+                packaged.Sdf = Copy("sdf", source.Sdf);
+                packaged.St = Copy("st", source.St);
+                packaged.ColorMask = Copy("color_mask", source.ColorMask);
+                packaged.LipSpecular = Copy("lip_specular", source.LipSpecular);
+                packaged.HairLine = Copy("hair_line", source.HairLine);
+                for (var slot = 1; slot <= 5; slot++)
+                {
+                    var binding = material.Zzz.GetMatCap(slot);
+                    packaged.MatCaps[slot] = Copy($"matcap_{slot}", binding.EffectiveTexturePath);
+                }
             }
             result[material.MaterialIndex] = packaged;
 

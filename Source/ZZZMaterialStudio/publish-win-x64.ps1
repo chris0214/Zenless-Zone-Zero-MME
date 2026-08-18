@@ -51,16 +51,16 @@ foreach ($path in @($publish, $stage)) {
     if (Test-Path -LiteralPath $resolved) { Remove-Item -LiteralPath $resolved -Recurse -Force }
 }
 
-dotnet restore (Join-Path $root "EndfieldMaterialStudio.App\EndfieldMaterialStudio.App.csproj") `
+dotnet restore (Join-Path $root "ZzzMaterialStudio.App\ZzzMaterialStudio.App.csproj") `
     -r win-x64 --configfile (Join-Path $root "NuGet.Publish.Config") -p:NuGetAudit=false
 if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed: $LASTEXITCODE" }
 if ($SelfContained) {
-    dotnet publish (Join-Path $root "EndfieldMaterialStudio.App\EndfieldMaterialStudio.App.csproj") `
+    dotnet publish (Join-Path $root "ZzzMaterialStudio.App\ZzzMaterialStudio.App.csproj") `
         -c Release -r win-x64 --self-contained true --no-restore `
         -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
         -p:DebugType=None -p:DebugSymbols=false -o $stage
 } else {
-    dotnet publish (Join-Path $root "EndfieldMaterialStudio.App\EndfieldMaterialStudio.App.csproj") `
+    dotnet publish (Join-Path $root "ZzzMaterialStudio.App\ZzzMaterialStudio.App.csproj") `
         -c Release -r win-x64 --self-contained false --no-restore `
         -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o $stage
 }
@@ -71,6 +71,17 @@ Copy-Item -LiteralPath (Join-Path $stage "ZZZMaterialStudio.exe") -Destination (
 $runtimeDestination = Join-Path $publish $runtimeDirectoryName
 if ($runtimeDirectoryName -eq "ZZZ_MME") {
     New-Item -ItemType Directory -Force -Path $runtimeDestination | Out-Null
+    $developmentEntryFiles = @(
+        "ZZZ_Body.fx",
+        "ZZZ_Debug.fx",
+        "ZZZ_EyeThrough_Capture.fxsub",
+        "ZZZ_EyeThrough_Mask.fxsub",
+        "ZZZ_EyeThrough.fx",
+        "ZZZ_Face.fx",
+        "ZZZ_Hair.fx",
+        "ZZZ_HairOffsetShadow.fx",
+        "ZZZ_HairVisibility_Capture.fxsub"
+    )
     foreach ($directory in @("Manual", "internal", "textures", "controller", "ZZZshadow", "ZZZEyeThrough", "ZZZPost")) {
         $source = Join-Path $runtime $directory
         if (Test-Path -LiteralPath $source -PathType Container) {
@@ -78,6 +89,7 @@ if ($runtimeDirectoryName -eq "ZZZ_MME") {
         }
     }
     foreach ($file in Get-ChildItem -LiteralPath $runtime -File) {
+        if ($file.Name -in $developmentEntryFiles) { continue }
         $extension = $file.Extension.ToLowerInvariant()
         $isRuntimeFile = $extension -in @(".fx", ".fxsub", ".hlsl", ".fxh", ".inc", ".x", ".png", ".dds") -and
             ($file.Name.StartsWith("ZZZ", [System.StringComparison]::OrdinalIgnoreCase) -or

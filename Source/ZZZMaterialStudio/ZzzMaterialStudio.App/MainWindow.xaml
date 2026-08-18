@@ -1,0 +1,586 @@
+<Window x:Class="ZzzMaterialStudio.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:ZzzMaterialStudio.App.ViewModels"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}"
+        Width="1480" Height="900" MinWidth="1180" MinHeight="720"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="66"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="32"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Margin="18,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="38" Height="38" Background="{StaticResource YellowBrush}" CornerRadius="4" VerticalAlignment="Center">
+                    <TextBlock Text="ZZZ" Foreground="{StaticResource TextBrush}" FontWeight="Bold" FontSize="12"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="ZZZ Material Studio" FontSize="17" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                        <TextBlock Text="{Binding ProjectName}" Foreground="{StaticResource MutedBrush}"/>
+                        <TextBlock Text="  ·  " Foreground="{StaticResource MutedBrush}"/>
+                        <TextBlock Text="{Binding RuntimeDisplay}" Foreground="{StaticResource CyanBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Content="导入 PMX" Click="ImportPmx_Click"/>
+                    <Button Content="打开工程" Click="OpenProject_Click"/>
+                    <Button Content="保存工程" Click="SaveProject_Click" IsEnabled="{Binding IsProjectLoaded}"/>
+                    <Button Content="检查" Click="Validate_Click" IsEnabled="{Binding IsProjectLoaded}"/>
+                    <Button Content="生成角色包" Click="GeneratePackage_Click" Style="{StaticResource PrimaryButton}"
+                            IsEnabled="{Binding IsProjectLoaded}" Margin="0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" x:Name="WorkspaceTabs" Background="{StaticResource CanvasBrush}" BorderThickness="0">
+            <TabControl.Resources>
+                <Style TargetType="TabItem">
+                    <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+                    <Setter Property="Background" Value="{StaticResource CanvasBrush}"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                    <Setter Property="Padding" Value="18,10"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="TabBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="0,0,0,2" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter ContentSource="Header" HorizontalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                        <Setter TargetName="TabBorder" Property="BorderBrush" Value="{StaticResource YellowBrush}"/>
+                                        <Setter TargetName="TabBorder" Property="Background" Value="{StaticResource PanelBrush}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <TabItem Header="工程设置">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <Grid Margin="24" MaxWidth="1120" HorizontalAlignment="Center" IsEnabled="{Binding IsProjectLoaded}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="18" CornerRadius="4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="220"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="工程身份"/>
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="工程名称"/>
+                                    <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="工程 JSON" Margin="0,12,0,5"/>
+                                    <TextBlock Text="{Binding CurrentProjectPath}" Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="28,0,0,0">
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="运行时"/>
+                                    <TextBlock Text="{Binding RuntimeDisplay}" Foreground="{StaticResource CyanBrush}" FontSize="15" FontWeight="SemiBold"/>
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="材质概况" Margin="0,16,0,5"/>
+                                    <TextBlock Text="{Binding MaterialSummary}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="1" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="18" CornerRadius="4" Margin="0,12,0,0">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitle}" Text="文件与运行时"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="42"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Style="{StaticResource FieldLabel}" Text="PMX 模型" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PmxPath}" IsReadOnly="True" Margin="0,0,8,8"/>
+                                    <Button Grid.Row="0" Grid.Column="2" Content="&#xE8B7;" Style="{StaticResource IconButton}" ToolTip="选择 PMX" Click="ImportPmx_Click" Margin="0,0,0,8"/>
+
+                                    <TextBlock Grid.Row="1" Style="{StaticResource FieldLabel}" Text="ZZZ_MME 运行时" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RuntimeRoot, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,8"/>
+                                    <Button Grid.Row="1" Grid.Column="2" Content="&#xE8B7;" Style="{StaticResource IconButton}" ToolTip="选择运行时目录" Click="BrowseRuntime_Click" Margin="0,0,0,8"/>
+
+                                    <TextBlock Grid.Row="2" Style="{StaticResource FieldLabel}" Text="角色包输出" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding OutputDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,8"/>
+                                    <Button Grid.Row="2" Grid.Column="2" Content="&#xE8B7;" Style="{StaticResource IconButton}" ToolTip="选择输出目录" Click="BrowseOutput_Click" Margin="0,0,0,8"/>
+
+                                    <TextBlock Grid.Row="3" Style="{StaticResource FieldLabel}" Text="官方 JSON 根目录" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding OfficialJsonRoot, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,8"/>
+                                    <Button Grid.Row="3" Grid.Column="2" Content="&#xE8B7;" Style="{StaticResource IconButton}" ToolTip="选择官方 JSON 目录" Click="BrowseOfficialJson_Click" Margin="0,0,0,8"/>
+
+                                    <TextBlock Grid.Row="4" Style="{StaticResource FieldLabel}" Text="控制器目录" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ControllerRoot, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,0"/>
+                                    <Button Grid.Row="4" Grid.Column="2" Content="&#xE8B7;" Style="{StaticResource IconButton}" ToolTip="选择控制器目录" Click="BrowseControllerRoot_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="18" CornerRadius="4" Margin="0,12,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,20,0">
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="眼透与模型"/>
+                                    <CheckBox Content="启用眼透" IsChecked="{Binding EnableEyeThrough}"/>
+                                    <CheckBox Content="生成旧运行时派生 PMX" IsChecked="{Binding GenerateDerivedPmx}" IsEnabled="{Binding SupportsDerivedPmx}" Margin="0,10,0,0"/>
+                                    <TextBlock Style="{StaticResource FieldLabel}" Text="头部骨骼" Margin="0,15,0,5"/>
+                                    <TextBox Text="{Binding HeadBone, UpdateSourceTrigger=PropertyChanged}" Width="220" HorizontalAlignment="Left"/>
+                                    <Button Content="生成/检查眼透模型" Click="GenerateEyeThrough_Click" Margin="0,14,0,0" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="20,0,0,0">
+                                    <TextBlock Style="{StaticResource SectionTitle}" Text="材质策略"/>
+                                    <CheckBox Content="手动 MatCap 优先于官方 JSON" IsChecked="{Binding PreferManualMatCap}"/>
+                                    <TextBlock Foreground="{StaticResource MutedBrush}" Margin="0,10,0,0"
+                                               Text="官方 JSON 用于建议与初始参数；最终贴图、强度、遮罩和混合方式均可手动覆盖。"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,18,0,0">
+                                        <Button Content="自动匹配贴图" Click="AutoMatch_Click"/>
+                                        <Button Content="检查工程" Click="Validate_Click" Margin="0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Row="3" Background="#F2FBFC" BorderBrush="#B8DADC" BorderThickness="1" Padding="14" CornerRadius="4" Margin="0,12,0,24">
+                            <TextBlock Foreground="{StaticResource CyanBrush}" Text="GUI 只写入工程与生成文件；ZZZ_MME 运行时目录始终按只读源处理。"/>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="材质工作区" IsEnabled="{Binding IsProjectLoaded}">
+                <Grid Margin="14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="240"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="470"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
+                        <DockPanel>
+                            <Border DockPanel.Dock="Top" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,11">
+                                <StackPanel>
+                                    <TextBlock Text="PMX 材质" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding MaterialSummary}" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <ListBox ItemsSource="{Binding Materials}" SelectedItem="{Binding SelectedMaterial}" Padding="6" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0,0,0,4"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="1" CornerRadius="3" Padding="9,8">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter TargetName="ItemBorder" Property="Background" Value="#FFF6D6"/>
+                                                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{StaticResource YellowBrush}"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="ItemBorder" Property="Background" Value="#F1F4F7"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="32"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding DisplayIndex}" Foreground="{StaticResource CyanBrush}" FontFamily="Consolas" VerticalAlignment="Top"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding MaterialName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                                                <TextBlock Text="{Binding RoleLabel}" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="16" DataContext="{Binding SelectedMaterial}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="180"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding MaterialName}" FontSize="18" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding EnglishName}" Foreground="{StaticResource MutedBrush}" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Style="{StaticResource FieldLabel}" Text="材质角色"/>
+                                        <ComboBox ItemsSource="{Binding RoleChoices}" DisplayMemberPath="Label" SelectedValuePath="Value"
+                                                  SelectedValue="{Binding Role, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Margin="0,14,0,14"/>
+                                <TextBlock Text="{Binding RoleDescription}"/>
+                                <TextBlock Text="{Binding TextureContract}" Foreground="{StaticResource CyanBrush}" Margin="0,7,0,0"/>
+
+                                <Grid Margin="0,16,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="180"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <CheckBox Content="使用 PMX 基础贴图" IsChecked="{Binding UsePmxBaseTexture}"/>
+                                        <TextBlock Text="{Binding PmxBaseTexture}" Foreground="{StaticResource MutedBrush}" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="0,5,12,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" IsEnabled="{Binding SupportsZWrite}">
+                                        <TextBlock Style="{StaticResource FieldLabel}" Text="深度写入 / ZWrite"/>
+                                        <ComboBox ItemsSource="{Binding ZWriteChoices}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedZWriteChoice}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,18,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="贴图槽" FontSize="15" FontWeight="SemiBold"/>
+                                    <Button Grid.Column="1" Content="清空非基础贴图" Click="ClearMaterialTextures_Click" Margin="0" Padding="9,5"/>
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding TextureSlots}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="126"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="38"/>
+                                                    <ColumnDefinition Width="34"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" FontSize="12"/>
+                                                    <TextBlock Text="{Binding Hint}" Foreground="{StaticResource MutedBrush}" FontSize="10"/>
+                                                </StackPanel>
+                                                <TextBox Grid.Column="1" Text="{Binding Value, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsEnabled}" Margin="0,0,7,0"/>
+                                                <Button Grid.Column="2" Content="&#xE8B7;" Style="{StaticResource IconButton}" ToolTip="选择贴图" Tag="{Binding}" Click="BrowseTexture_Click" IsEnabled="{Binding IsEnabled}" Margin="0,0,4,0"/>
+                                                <Button Grid.Column="3" Content="&#xE74D;" Style="{StaticResource IconButton}" ToolTip="清除此槽" Tag="{Binding}" Click="ClearTexture_Click" IsEnabled="{Binding IsEnabled}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Border Background="#F2FBFC" BorderBrush="#B8DADC" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,12,0,0"
+                                        Visibility="{Binding SupportsHairSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <TextBlock Text="头发高光与边缘光" FontWeight="SemiBold"/>
+                                        <Grid Margin="0,12,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,8,0">
+                                                <TextBlock Style="{StaticResource FieldLabel}" Text="高光分区槽"/>
+                                                <ComboBox ItemsSource="{Binding HairHighlightSlots}" SelectedItem="{Binding HairHighlightSlot}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                                <TextBlock Style="{StaticResource FieldLabel}" Text="高光亮度"/>
+                                                <TextBox Text="{Binding HairHighlightGain, UpdateSourceTrigger=LostFocus}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Style="{StaticResource FieldLabel}" Text="中央收窄"/>
+                                                <TextBox Text="{Binding HairCenterPower, UpdateSourceTrigger=LostFocus}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <WrapPanel Margin="0,12,0,0">
+                                            <CheckBox Content="中央遮罩" IsChecked="{Binding HairUseCenterMask}" Margin="0,0,18,0"/>
+                                            <CheckBox Content="屏幕空间边缘光" IsChecked="{Binding HairUseScreenRim}" Margin="0,0,18,0"/>
+                                            <CheckBox Content="刘海偏移阴影" IsChecked="{Binding HairUseFaceShadow}"/>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Background="{StaticResource RaisedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,12,0,16">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="官方材质 JSON" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding OfficialJsonName}" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
+                                            <TextBlock Text="{Binding OfficialShaderName}" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Content="读取并应用" Click="ApplyOfficialJson_Click" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+
+                    <Border Grid.Column="4" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4"
+                            IsEnabled="{Binding SelectedMaterial.SupportsMatCaps}">
+                        <DockPanel>
+                            <Border DockPanel.Dock="Top" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="14,11">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="五槽 MatCap" FontWeight="SemiBold"/>
+                                        <TextBlock Text="每个槽位独立贴图、遮罩、混合与变换" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="手动优先" Foreground="{StaticResource YellowBrush}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding SelectedMaterial.MatCaps}" Margin="10">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{StaticResource RaisedBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="11" Margin="0,0,0,9">
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="58"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Width="50" Height="50" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="3">
+                                                            <Grid>
+                                                                <TextBlock Text="无预览" Foreground="{StaticResource MutedBrush}" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                <Image Source="{Binding EffectiveTexturePath, Converter={StaticResource SafeImagePathConverter}}" Stretch="UniformToFill"/>
+                                                            </Grid>
+                                                        </Border>
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding SourceDescription}" Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,3,0,0"/>
+                                                            <TextBlock Text="{Binding OfficialTextureName}" Foreground="{StaticResource CyanBrush}" FontSize="10" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                                                        </StackPanel>
+                                                        <CheckBox Grid.Column="2" Content="启用" IsChecked="{Binding Enabled}" VerticalAlignment="Top"/>
+                                                    </Grid>
+
+                                                    <Grid Margin="0,10,0,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="126"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="38"/>
+                                                            <ColumnDefinition Width="34"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <ComboBox ItemsSource="{x:Static vm:MatCapSlotViewModel.SourceChoices}" DisplayMemberPath="Label" SelectedValuePath="Value"
+                                                                  SelectedValue="{Binding Source}" Margin="0,0,7,0"/>
+                                                        <TextBox Grid.Column="1" Text="{Binding ManualTexturePath, UpdateSourceTrigger=LostFocus}" Margin="0,0,7,0" ToolTip="手动 MatCap 贴图路径"/>
+                                                        <Button Grid.Column="2" Content="&#xE8B7;" Style="{StaticResource IconButton}" ToolTip="选择 MatCap 贴图" Tag="{Binding}" Click="BrowseMatCap_Click" Margin="0,0,4,0"/>
+                                                        <Button Grid.Column="3" Content="&#xE74D;" Style="{StaticResource IconButton}" ToolTip="清除手动贴图" Tag="{Binding}" Click="ClearMatCap_Click"/>
+                                                    </Grid>
+
+                                                    <Grid Margin="0,9,0,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Margin="0,0,7,0">
+                                                            <TextBlock Style="{StaticResource FieldLabel}" Text="强度"/>
+                                                            <TextBox Text="{Binding Intensity, UpdateSourceTrigger=LostFocus}"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="1" Margin="0,0,7,0">
+                                                            <TextBlock Style="{StaticResource FieldLabel}" Text="混合"/>
+                                                            <ComboBox ItemsSource="{x:Static vm:MatCapSlotViewModel.BlendModeChoices}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding BlendMode}"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2">
+                                                            <TextBlock Style="{StaticResource FieldLabel}" Text="遮罩"/>
+                                                            <ComboBox ItemsSource="{x:Static vm:MatCapSlotViewModel.MaskChannelChoices}" SelectedItem="{Binding MaskChannel}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+
+                                                    <Expander Header="变换与颜色" Margin="0,9,0,0">
+                                                        <Grid Margin="0,8,0,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="旋转"/>
+                                                            <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource FieldLabel}" Text="缩放 X" Margin="5,0,0,5"/>
+                                                            <TextBlock Grid.Row="0" Grid.Column="2" Style="{StaticResource FieldLabel}" Text="缩放 Y" Margin="5,0,0,5"/>
+                                                            <TextBlock Grid.Row="0" Grid.Column="3" Style="{StaticResource FieldLabel}" Text="偏移 X" Margin="5,0,0,5"/>
+                                                            <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding Rotation, UpdateSourceTrigger=LostFocus}"/>
+                                                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Scale, UpdateSourceTrigger=LostFocus}" Margin="5,0,0,0"/>
+                                                            <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding ScaleY, UpdateSourceTrigger=LostFocus}" Margin="5,0,0,0"/>
+                                                            <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding OffsetX, UpdateSourceTrigger=LostFocus}" Margin="5,0,0,0"/>
+                                                            <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource FieldLabel}" Text="偏移 Y" Margin="0,8,0,5"/>
+                                                            <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource FieldLabel}" Text="色 R" Margin="5,8,0,5"/>
+                                                            <TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource FieldLabel}" Text="色 G" Margin="5,8,0,5"/>
+                                                            <TextBlock Grid.Row="2" Grid.Column="3" Style="{StaticResource FieldLabel}" Text="色 B" Margin="5,8,0,5"/>
+                                                            <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding OffsetY, UpdateSourceTrigger=LostFocus}"/>
+                                                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding TintR, UpdateSourceTrigger=LostFocus}" Margin="5,0,0,0"/>
+                                                            <TextBox Grid.Row="3" Grid.Column="2" Text="{Binding TintG, UpdateSourceTrigger=LostFocus}" Margin="5,0,0,0"/>
+                                                            <TextBox Grid.Row="3" Grid.Column="3" Text="{Binding TintB, UpdateSourceTrigger=LostFocus}" Margin="5,0,0,0"/>
+                                                        </Grid>
+                                                    </Expander>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="控制器" IsEnabled="{Binding IsProjectLoaded}">
+                <Grid Margin="18">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="132"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="分组" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}" Margin="0,0,8,0"/>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding ControllerGroups}" SelectedItem="{Binding SelectedControllerGroup}"/>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0">
+                                <Button Content="重新读取 PMX" Click="ReloadControllers_Click"/>
+                                <Button Content="启用当前组" Click="EnableControllerGroup_Click"/>
+                                <Button Content="停用当前组" Click="DisableControllerGroup_Click" Margin="0"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="4" Text="{Binding ControllerSummary}" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding ControllerView}" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <DataGridCheckBoxColumn Header="启用" Binding="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" Width="54"/>
+                            <DataGridTextColumn Header="分组" Binding="{Binding Group}" Width="92" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="控制器 PMX" Binding="{Binding ControllerFile}" Width="210" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="表情名" Binding="{Binding MorphName}" Width="160" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="内部参数键" Binding="{Binding TargetProperty, UpdateSourceTrigger=LostFocus}" Width="1.2*"/>
+                            <DataGridTextColumn Header="中性" Binding="{Binding Default, UpdateSourceTrigger=LostFocus}" Width="72"/>
+                            <DataGridTextColumn Header="最小" Binding="{Binding Min, UpdateSourceTrigger=LostFocus}" Width="72"/>
+                            <DataGridTextColumn Header="最大" Binding="{Binding Max, UpdateSourceTrigger=LostFocus}" Width="72"/>
+                            <DataGridTextColumn Header="说明" Binding="{Binding Note, UpdateSourceTrigger=LostFocus}" Width="1.6*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Border Grid.Row="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,10,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="随包加载的控制器" FontWeight="SemiBold"/>
+                                <TextBlock Text="仅打包此列表中的 PMX" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <ListBox Grid.Column="1" x:Name="ControllerFilesList" ItemsSource="{Binding ControllerFiles}" Margin="8,0"/>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="添加" Click="AddControllerFile_Click"/>
+                                <Button Content="移除" Click="RemoveControllerFile_Click"/>
+                                <Button Content="恢复默认" Click="ResetControllerFiles_Click" Margin="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="输出与日志">
+                <Grid Margin="18">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="生成与诊断" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Content="清空日志" Click="ClearLog_Click"/>
+                                <Button Content="打开输出目录" Click="OpenOutputDirectory_Click" IsEnabled="{Binding IsProjectLoaded}"/>
+                                <Button Content="生成角色包" Click="GeneratePackage_Click" Style="{StaticResource PrimaryButton}" IsEnabled="{Binding IsProjectLoaded}" Margin="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <TextBox Grid.Row="1" x:Name="LogBox" Text="{Binding LogText, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
+                             FontFamily="Cascadia Mono, Consolas" FontSize="12" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                             Background="{StaticResource PanelBrush}" Foreground="{StaticResource TextBrush}" Padding="12"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <Border Grid.Row="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid Margin="14,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding StatusText}" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                <TextBlock Grid.Column="1" Text="ZZZ 专用 GUI · Core 只读复用" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

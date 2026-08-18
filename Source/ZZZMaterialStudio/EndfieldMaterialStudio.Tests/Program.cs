@@ -753,11 +753,35 @@ void RunZzzCharacterPackageSmokeTests()
             Assert(matchMessages.Count == 0,
                 $"{testCase.Label} 自动贴图匹配产生了诊断：{string.Join(" | ", matchMessages.Select(message => message.ToString()))}");
 
+            var compatibilityMaterial = project.Materials.FirstOrDefault(material =>
+                material.Enabled && File.Exists(material.PmxBaseTexture ?? material.Textures.Base));
+            if (compatibilityMaterial is null)
+                throw new InvalidOperationException($"{testCase.Label} 找不到兼容槽过滤探针贴图");
+            var compatibilityTexture = compatibilityMaterial.PmxBaseTexture ?? compatibilityMaterial.Textures.Base!;
+            compatibilityMaterial.Textures.Rd = compatibilityTexture;
+            compatibilityMaterial.Textures.Lut = compatibilityTexture;
+            compatibilityMaterial.Textures.St = compatibilityTexture;
+            compatibilityMaterial.Textures.ColorMask = compatibilityTexture;
+            compatibilityMaterial.Textures.LipSpecular = compatibilityTexture;
+            compatibilityMaterial.Textures.HairLine = compatibilityTexture;
+
             var validation = ProjectValidator.Validate(project);
             Assert(validation.All(message => !message.IsError),
                 $"{testCase.Label} 打包前验证失败：{string.Join(" | ", validation.Select(message => message.ToString()))}");
 
             var result = new PackageBuilder().Build(project);
+            var packagedProjectPath = Directory.GetFiles(
+                result.OutputDirectory, "*.zzzstudio.json", SearchOption.TopDirectoryOnly).Single();
+            var packagedProject = ProjectFactory.Load(packagedProjectPath);
+            var packagedCompatibilityMaterial = packagedProject.Materials.Single(material =>
+                material.MaterialIndex == compatibilityMaterial.MaterialIndex);
+            Assert(string.IsNullOrWhiteSpace(packagedCompatibilityMaterial.Textures.Rd) &&
+                   string.IsNullOrWhiteSpace(packagedCompatibilityMaterial.Textures.Lut) &&
+                   string.IsNullOrWhiteSpace(packagedCompatibilityMaterial.Textures.St) &&
+                   string.IsNullOrWhiteSpace(packagedCompatibilityMaterial.Textures.ColorMask) &&
+                   string.IsNullOrWhiteSpace(packagedCompatibilityMaterial.Textures.LipSpecular) &&
+                   string.IsNullOrWhiteSpace(packagedCompatibilityMaterial.Textures.HairLine),
+                $"{testCase.Label} ZZZ 角色包仍保留旧 Endfield 贴图槽");
             var emm = DecodeStrictCp936(File.ReadAllBytes(result.EmmPath));
             Assert(emm.Contains("Acs3 = ", StringComparison.Ordinal) &&
                    emm.Contains("ZZZPost\\ZZZPost.x", StringComparison.Ordinal) &&

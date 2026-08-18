@@ -61,7 +61,8 @@ SAO 已按视觉验收结论从正式流程移除，避免角色渲染变脏。
 
 - PMX 材质索引、中文名、英文名和角色分类。
 - PMX 原始 Base 贴图解析结果。
-- Base、Normal、Property、RD、RS、LUT、SDF、ST、ColorMask、LipSpecular、HairLine 槽。
+- ZZZ GUI 公开 Base、Normal/N、Property/M、Attribute/A（数据字段为 `Rs`）和 Face SDF 槽。
+- `RD`、`LUT`、`ST`、`ColorMask`、`LipSpecular`、`HairLine` 仅保留在 schema 中读取旧工程；ZZZ 运行时不消费，也不在 GUI 中显示或自动匹配。
 - 独立的 `ZzzMaterialProfile`。
 - 五个固定 `MatCapSlotBinding`，槽号严格为 1..5。
 - 官方 JSON 的纹理、浮点、整数、颜色和原始属性。
@@ -161,7 +162,7 @@ GUI 中旧版“派生 PMX”按钮只对 Legacy Endfield 运行时开放。选�
 - PMX 导入后执行保守初始分类。
 - 右侧显示角色中文说明、JSON 状态和实际槽位契约。
 - ZZZ 模式只开放当前角色真正消费的贴图框。
-- Legacy 模式保留 RD、LUT、ST 等旧槽位。
+- 新 GUI 不显示 RD、LUT、ST 等旧槽位；载入旧工程时仅在数据层保留原值，便于迁移和重新保存。
 - Face 只开放 Base 与 FaceLight/SDF。
 - Hair/Skin/Cloth 开放 Base 与 N/M/A。
 - Eye01/Eye02 只开放 Base。
