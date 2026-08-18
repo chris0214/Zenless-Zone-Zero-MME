@@ -1,6 +1,8 @@
 **/bin/
 **/obj/
 **/artifacts/
+**/.nuget/
+**/.dotnet_home/
 **/__pycache__/
 *.user
 *.suo
