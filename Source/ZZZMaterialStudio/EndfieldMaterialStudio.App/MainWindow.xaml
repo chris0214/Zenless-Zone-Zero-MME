@@ -222,6 +222,18 @@
                             <Button Grid.Row="13" Grid.Column="1" Grid.ColumnSpan="2" Content="清空当前材质的非基础贴图" Click="ClearMaterialTextures_Click" Margin="0,7,0,0"/>
                         </Grid>
                         <Border Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,0,12,10" Padding="9,7">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" x:Name="DepthWriteLabel" Style="{StaticResource FieldLabel}"
+                                           Text="眼部深度写入（ZWrite）"/>
+                                <ComboBox Grid.Column="1" x:Name="DepthWriteCombo" DisplayMemberPath="Label"
+                                          SelectionChanged="DepthWriteCombo_SelectionChanged"/>
+                            </Grid>
+                        </Border>
+                        <Border Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1" Margin="12,0,12,10" Padding="9,7">
                             <TextBlock x:Name="TextureContractText" Foreground="#4B5563" TextWrapping="Wrap"/>
                         </Border>
                         <Expander x:Name="HairSettingsExpander" Header="ZZZ 头发高光" IsExpanded="True" Margin="12,2,12,10">

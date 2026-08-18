@@ -21,6 +21,12 @@ public partial class MainWindow : Window
     public IReadOnlyList<string> MatCapBlendModes { get; } = new[] { "Official", "AlphaBlend", "Add", "Overlay", "Multiply", "Replace" };
     public IReadOnlyList<string> MatCapMaskChannels { get; } = new[] { "R", "G", "B", "A", "RGB", "RGBA" };
     public IReadOnlyList<int> HairHighlightSlots { get; } = Enumerable.Range(1, 5).ToArray();
+    public IReadOnlyList<DepthWriteChoice> DepthWriteChoices { get; } =
+    [
+        new("自动（推荐）", null),
+        new("开启（true）", true),
+        new("关闭（false）", false)
+    ];
 
     public MainWindow()
     {
@@ -30,6 +36,7 @@ public partial class MainWindow : Window
         ControllerBindingsGrid.ItemsSource = _controllerBindings;
         ControllerFilesList.ItemsSource = _controllerFiles;
         HairHighlightSlotCombo.ItemsSource = HairHighlightSlots;
+        DepthWriteCombo.ItemsSource = DepthWriteChoices;
         RefreshControllerGroups();
         RuntimePathBox.Text = FindRuntimeRoot() ?? string.Empty;
         RefreshRuntimeUi();
@@ -335,6 +342,14 @@ public partial class MainWindow : Window
         RefreshMaterialRoleUi(_selectedMaterial);
     }
 
+    private void DepthWriteCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_updatingEditor || _selectedMaterial is null ||
+            DepthWriteCombo.SelectedItem is not DepthWriteChoice choice) return;
+        _selectedMaterial.ZWriteOverride = choice.Value;
+        RefreshMaterialRoleUi(_selectedMaterial);
+    }
+
     private void HairSettings_Changed(object sender, RoutedEventArgs e) => CommitHairSettings();
 
     private void HairSettings_TextChanged(object sender, TextChangedEventArgs e) => CommitHairSettings();
@@ -635,6 +650,8 @@ public partial class MainWindow : Window
                 ? "未读取 JSON"
                 : Path.GetFileName(material.Zzz.OfficialJsonPath);
             RoleCombo.SelectedItem = material.Role;
+            DepthWriteCombo.SelectedItem = DepthWriteChoices.First(choice =>
+                choice.Value == material.ZWriteOverride);
             UsePmxBaseCheck.IsChecked = material.UsePmxBaseTexture;
             BaseBox.Text = material.Textures.Base ?? string.Empty;
             NormalBox.Text = material.Textures.Normal ?? string.Empty;
@@ -682,8 +699,19 @@ public partial class MainWindow : Window
             ? "未读取 JSON"
             : Path.GetFileName(material.Zzz.OfficialJsonPath);
         var isZzz = _project?.RuntimeKind == ShaderRuntimeKind.ZzzMme;
-        SelectedMaterialHint.Text = $"#{material.MaterialIndex} · {RoleDisplayName(material.Role)} · {jsonName}\n{RoleDescription(material.Role, isZzz)}";
+        var supportsDepthWrite = isZzz && material.Role is
+            (MaterialRole.BrowLash or MaterialRole.EyeOverlay or MaterialRole.EyeHighlight or MaterialRole.BrowOverlay);
+        var depthWriteText = material.ZWriteOverride switch
+        {
+            true => "ZWrite：开启（true）",
+            false => "ZWrite：关闭（false）",
+            _ => "ZWrite：自动"
+        };
+        SelectedMaterialHint.Text = $"#{material.MaterialIndex} · {RoleDisplayName(material.Role)} · {jsonName}\n{RoleDescription(material.Role, isZzz)}" +
+            (supportsDepthWrite ? $"\n{depthWriteText}" : string.Empty);
         TextureContractText.Text = TextureContract(material.Role, isZzz);
+        DepthWriteLabel.IsEnabled = supportsDepthWrite;
+        DepthWriteCombo.IsEnabled = supportsDepthWrite;
         HairSettingsExpander.IsEnabled = isZzz && material.Role == MaterialRole.Hair;
         var keepsMatCapProfile = isZzz && material.Role is MaterialRole.Hair or MaterialRole.Skin or MaterialRole.Cloth;
         MatCapsExpander.IsEnabled = keepsMatCapProfile;
@@ -872,3 +900,5 @@ public partial class MainWindow : Window
         }
     }
 }
+
+public sealed record DepthWriteChoice(string Label, bool? Value);

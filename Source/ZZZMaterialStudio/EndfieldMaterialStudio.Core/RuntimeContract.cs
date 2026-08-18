@@ -1,7 +1,13 @@
+using System.Text.RegularExpressions;
+
 namespace EndfieldMaterialStudio.Core;
 
 public static class RuntimeContract
 {
+    private static readonly Regex BareIncludeRegex = new(
+        "^\\s*#include\\s+\\\"([^\\\"/\\\\]+)\\\"",
+        RegexOptions.Compiled | RegexOptions.Multiline);
+
     private static readonly string[] LegacyFixedTextureNames =
     {
         "Eff_MatCap_019.png",
@@ -287,8 +293,59 @@ public static class RuntimeContract
             File.Copy(source, destination, true);
             AddUnique(files, destination);
         }
+        CopyZzzMmeRootIncludeCompatibilityFiles(runtimeRoot, outputRoot, files);
         ZzzRuntimeNormalizer.NormalizeGeneratedCopy(outputRoot);
         return files;
+    }
+
+    // MME resolves an include nested below a top-level Material_*.fx from the
+    // material package root. Keep the source organized under internal/, but
+    // add only the actually referenced basename files at the generated root.
+    private static void CopyZzzMmeRootIncludeCompatibilityFiles(
+        string runtimeRoot,
+        string outputRoot,
+        ICollection<string> files)
+    {
+        var internalRoot = Path.Combine(runtimeRoot, "internal");
+        if (!Directory.Exists(internalRoot)) return;
+
+        var referenced = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var includeFile in Directory.GetFiles(internalRoot, "*", SearchOption.AllDirectories))
+        {
+            string sourceText;
+            try
+            {
+                sourceText = File.ReadAllText(includeFile);
+            }
+            catch (IOException)
+            {
+                continue;
+            }
+
+            foreach (Match match in BareIncludeRegex.Matches(sourceText))
+            {
+                var includeName = match.Groups[1].Value;
+                var source = Path.Combine(Path.GetDirectoryName(includeFile)!, includeName);
+                if (File.Exists(source)) referenced.Add(includeName);
+            }
+        }
+
+        foreach (var includeName in referenced)
+        {
+            var source = Directory.GetFiles(internalRoot, includeName, SearchOption.AllDirectories)
+                .FirstOrDefault();
+            if (source is null) continue;
+
+            var destination = Path.Combine(outputRoot, includeName);
+            // A same-named top-level runtime file wins. In particular, the
+            // internal bridge intentionally points one directory upward to
+            // that canonical file; replacing it would make the copied root
+            // file escape the generated package.
+            if (File.Exists(destination)) continue;
+            Directory.CreateDirectory(outputRoot);
+            File.Copy(source, destination, true);
+            AddUnique(files, destination);
+        }
     }
 
     private static bool IsZzzRuntimeTopLevelFile(string path)

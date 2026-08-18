@@ -24,7 +24,7 @@ float ZzzEyeInnerOpacity <
 > = 0.50;
 
 float ZzzEyeInnerBrightness <
-    string UIName = "内光自发光";
+    string UIName = "Inner light brightness";
     string UIWidget = "Slider";
     float UIMin = 0.0;
     float UIMax = 16.0;
@@ -38,7 +38,7 @@ float ZzzEyeInnerMaskGain <
 > = 1.0;
 
 float ZzzEyeInnerMaskCutoff <
-    string UIName = "内光边缘阈值";
+    string UIName = "Inner light cutoff";
     string UIWidget = "Slider";
     float UIMin = 0.0;
     float UIMax = 1.0;
@@ -300,10 +300,10 @@ float4 ZzzEyeShadowPS(
 
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeLashObject, "object", ZZZ_EYE_LASH_SUBSET, true, ZzzEyeLashVS, ZzzEyeLashPS,
-    false, INVSRCALPHA)
+    true, INVSRCALPHA)
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeLashObjectSs, "object_ss", ZZZ_EYE_LASH_SUBSET, true, ZzzEyeLashVS, ZzzEyeLashPS,
-    false, INVSRCALPHA)
+    true, INVSRCALPHA)
 
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeInnerObject, "object", ZZZ_EYE_INNER_SUBSET, true, ZzzEyeInnerVS, ZzzEyeInnerPS,
@@ -314,17 +314,17 @@ ZZZ_EYE_OVERLAY_TECHNIQUE(
 
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeHighlightObject, "object", ZZZ_EYE_HIGHLIGHT_SUBSET, true,
-    ZzzEyeHighlightVS, ZzzEyeHighlightPS, false, INVSRCALPHA)
+    ZzzEyeHighlightVS, ZzzEyeHighlightPS, true, INVSRCALPHA)
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeHighlightObjectSs, "object_ss", ZZZ_EYE_HIGHLIGHT_SUBSET, true,
-    ZzzEyeHighlightVS, ZzzEyeHighlightPS, false, INVSRCALPHA)
+    ZzzEyeHighlightVS, ZzzEyeHighlightPS, true, INVSRCALPHA)
 
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeShadowObject, "object", ZZZ_EYE_SHADOW_SUBSET, true, ZzzEyeShadowVS, ZzzEyeShadowPS,
-    false, INVSRCALPHA)
+    true, INVSRCALPHA)
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeShadowObjectSs, "object_ss", ZZZ_EYE_SHADOW_SUBSET, true,
-    ZzzEyeShadowVS, ZzzEyeShadowPS, false, INVSRCALPHA)
+    ZzzEyeShadowVS, ZzzEyeShadowPS, true, INVSRCALPHA)
 
 technique ZzzEyeOverlayEdge < string MMDPass = "edge"; > { }
 technique ZzzEyeOverlayShadow < string MMDPass = "shadow"; > { }

@@ -288,8 +288,70 @@ void RunZzzAcceptedMaterialTemplateSmokeTests()
             $"ZZZ Eye02 {variant} 没有生成独立 Subset 分支");
         Assert(CountOccurrences(overlay, "ZZZ_EYE_OVERLAY_TECHNIQUE(") == 3,
             $"ZZZ Eye02 {variant} 混入了其他材质分支");
+        var expectedZWrite = role == MaterialRole.EyeOverlay ? "false" : "true";
+        Assert(CountOccurrences(
+                   overlay,
+                   $"{variant}VS, ZzzEye{variant}PS, {expectedZWrite},") == 2,
+            $"ZZZ Eye02 {variant} 深度写入状态回退");
         if (role == MaterialRole.EyeOverlay)
             Assert(overlay.Contains("> = 9.0;", StringComparison.Ordinal), "瞳内光默认亮度不是验收的 9");
+    }
+
+    var forcedHighlightNoWrite = DecodeCp936(FxTemplateEngine.BuildMaterialFx(
+        new MaterialAssignment
+        {
+            MaterialIndex = 18,
+            MaterialName = "Highlight no write",
+            Role = MaterialRole.EyeHighlight,
+            ZWriteOverride = false
+        },
+        slots,
+        "头",
+        "unused.cp932",
+        "generated_json_profiles/Material_018_ZZZ.inc",
+        ShaderRuntimeKind.ZzzMme));
+    Assert(CountOccurrences(forcedHighlightNoWrite, "ZzzEyeHighlightPS, false,") == 2,
+        "ZZZ Eye02 GUI ZWrite=false 覆盖没有生效");
+
+    var forcedInnerWrite = DecodeCp936(FxTemplateEngine.BuildMaterialFx(
+        new MaterialAssignment
+        {
+            MaterialIndex = 19,
+            MaterialName = "Inner write",
+            Role = MaterialRole.EyeOverlay,
+            ZWriteOverride = true
+        },
+        slots,
+        "头",
+        "unused.cp932",
+        "generated_json_profiles/Material_019_ZZZ.inc",
+        ShaderRuntimeKind.ZzzMme));
+    Assert(CountOccurrences(forcedInnerWrite, "ZzzEyeInnerPS, true,") == 2,
+        "ZZZ Eye02 GUI ZWrite=true 覆盖没有生效");
+
+    var zWriteProjectPath = Path.Combine(Path.GetTempPath(), $"ZZZ_ZWrite_{Guid.NewGuid():N}.zzzstudio.json");
+    try
+    {
+        ProjectFactory.Save(new StudioProject
+        {
+            Materials =
+            [
+                new MaterialAssignment
+                {
+                    MaterialIndex = 8,
+                    MaterialName = "Highlight override",
+                    Role = MaterialRole.EyeHighlight,
+                    ZWriteOverride = false
+                }
+            ]
+        }, zWriteProjectPath);
+        var loadedZWriteProject = ProjectFactory.Load(zWriteProjectPath);
+        Assert(loadedZWriteProject.Materials.Single().ZWriteOverride == false,
+            "工程 JSON 没有保存或恢复 ZWrite 覆盖");
+    }
+    finally
+    {
+        if (File.Exists(zWriteProjectPath)) File.Delete(zWriteProjectPath);
     }
 
     var captureProject = new StudioProject
@@ -381,6 +443,19 @@ void RunZzzRuntimeContractSmokeTest()
                File.Exists(Path.Combine(output, "internal", "zzz_face_skin_controls.inc")) &&
                File.Exists(Path.Combine(output, "internal", "zzz_eye_controls.inc")),
             "ZZZ 运行时复制缺少正式控制器接线 include");
+        foreach (var name in new[]
+        {
+            "zzz_cloth_matcap_controls.inc",
+            "zzz_decode.hlsl",
+            "zzz_hair_controls.inc",
+            "zzz_hair_zzzshadow_rim.hlsl",
+            "zzz_hgsao_contract.hlsl",
+            "zzz_hgshadow_bridge.hlsl"
+        })
+        {
+            Assert(File.Exists(Path.Combine(output, name)),
+                $"MME 根目录 include 兼容副本缺失：{name}");
+        }
         Assert(File.Exists(Path.Combine(output, "zzz_face_skin_ramp_shared.hlsl")),
             "ZZZ 运行时复制缺少 Face/Skin 共享 Ramp");
         Assert(!File.Exists(Path.Combine(output, "ZZZ_Hair.fx")) &&

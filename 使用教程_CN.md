@@ -100,6 +100,8 @@ FX 中明确写入的值
 - 不要把整个眼眶、眼白或内部眼球材质加入捕获。
 - 远处出现穿透时，优先检查 Capture Subset、HairMask Subset、深度写入和 MME 加载顺序。
 - 关闭 `ZZZEyeThrough.x` 后仍有透出，说明问题来自普通材质的深度/透明设置，而不是眼透附件本身。
+- GUI 的“眼部深度写入（ZWrite）”提供三档：`自动（推荐）`、`开启（true）`、`关闭（false）`。
+- 自动模式下，睫毛、瞳外高光和目影写入深度；瞳内光不写入深度。只有模型结构特殊时才手动覆盖。
 
 ## 六、控制器
 
@@ -122,7 +124,7 @@ ZzzPost_controller.pmx
 2. 选择 `ShaderRuntime/` 作为 Runtime 根目录。
 3. 导入普通 PMX，确认材质分类。
 4. 可选导入官方 Material JSON，检查 MatCap 和高光候选。
-5. 手动修正分类、贴图、五槽 MatCap 和 EyeThrough Subset。
+5. 手动修正分类、贴图、五槽 MatCap、EyeThrough Subset 和眼部 ZWrite。
 6. 生成角色专用 FX、Profile、EMM 和所需控制器。
 7. 对生成目录运行 FXC 编译验证，再复制到 MME。
 
@@ -151,5 +153,5 @@ Windows SDK 的 `fxc.exe` 会给出 D3D Effects 弃用警告，这是编译器�
 - **材质全黑**：先关闭后处理和 MatCap，只保留基础色与二分明暗。
 - **高光过强**：关闭 Bloom，检查 Specular Gain、MatCap Strength 和 Tint。
 - **阴影颜色不一致**：检查 HgShadow 强度、阴影明度和 Face/Skin Ramp 是否使用同一份 Profile。
-- **眼睛远处凸出**：检查 EyeThrough Capture 是否捕获眼白或整个眼眶，并检查 HairMask 深度。
+- **眼睛远处凸出**：先关闭 `ZZZEyeThrough.x` 区分来源；若仍凸出，检查普通眼部材质的 ZWrite，瞳外高光通常应为 `true`。
 - **衣服高光太弱**：逐个打开五个 MatCap 槽，确认遮罩通道和材质 Subset，而不是直接把全局增益乘很大。

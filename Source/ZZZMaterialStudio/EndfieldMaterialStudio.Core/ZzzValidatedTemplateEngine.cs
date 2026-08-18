@@ -71,14 +71,20 @@ internal static class ZzzValidatedTemplateEngine
             @"(?s)ZZZ_EYE_OVERLAY_TECHNIQUE\(\r?\n[ \t]+ZzzEyeLashObject,.*?(?=\r?\ntechnique[ \t]+ZzzEyeOverlayEdge)";
         var subset = material.MaterialIndex.ToString(System.Globalization.CultureInfo.InvariantCulture);
         var prefix = $"ZzzEye{variant.Name}_{material.MaterialIndex:000}";
+        var zWrite = (material.ZWriteOverride ?? roleWritesOcclusionDepth(material.Role)) ? "true" : "false";
         var invocations =
             $"ZZZ_EYE_OVERLAY_TECHNIQUE(\r\n" +
             $"    {prefix}Object, \"object\", \"{subset}\", true,\r\n" +
-            $"    {variant.VertexShader}, {variant.PixelShader}, false, {variant.DestinationBlend})\r\n" +
+            $"    {variant.VertexShader}, {variant.PixelShader}, {zWrite}, {variant.DestinationBlend})\r\n" +
             $"ZZZ_EYE_OVERLAY_TECHNIQUE(\r\n" +
             $"    {prefix}ObjectSs, \"object_ss\", \"{subset}\", true,\r\n" +
-            $"    {variant.VertexShader}, {variant.PixelShader}, false, {variant.DestinationBlend})\r\n";
+            $"    {variant.VertexShader}, {variant.PixelShader}, {zWrite}, {variant.DestinationBlend})\r\n";
         return ReplaceRegex(text, invocationPattern, invocations, 1, "Eye02 technique block");
+
+        static bool roleWritesOcclusionDepth(MaterialRole role) => role is
+            MaterialRole.BrowLash or
+            MaterialRole.EyeHighlight or
+            MaterialRole.BrowOverlay;
     }
 
     public static string BuildEyeCapture(

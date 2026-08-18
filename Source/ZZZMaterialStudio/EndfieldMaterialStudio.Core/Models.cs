@@ -226,6 +226,7 @@ public sealed class MaterialAssignment
     public MaterialRole Role { get; set; }
     public TextureSlots Textures { get; set; } = new();
     public bool UsePmxBaseTexture { get; set; } = true;
+    public bool? ZWriteOverride { get; set; }
     public string? PmxBaseTexture { get; set; }
     public ZzzMaterialProfile Zzz { get; set; } = new();
     public bool Enabled => Role is not MaterialRole.None and not MaterialRole.FaceProxy;

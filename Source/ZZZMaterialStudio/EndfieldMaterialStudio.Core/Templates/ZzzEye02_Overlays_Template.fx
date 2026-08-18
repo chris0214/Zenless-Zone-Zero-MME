@@ -299,10 +299,10 @@ float4 ZzzEyeShadowPS(
 
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeLashObject, "object", "4", true, ZzzEyeLashVS, ZzzEyeLashPS,
-    false, INVSRCALPHA)
+    true, INVSRCALPHA)
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeLashObjectSs, "object_ss", "4", true, ZzzEyeLashVS, ZzzEyeLashPS,
-    false, INVSRCALPHA)
+    true, INVSRCALPHA)
 
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeInnerObject, "object", "7", true, ZzzEyeInnerVS, ZzzEyeInnerPS,
@@ -313,17 +313,17 @@ ZZZ_EYE_OVERLAY_TECHNIQUE(
 
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeHighlightObject, "object", "8", true,
-    ZzzEyeHighlightVS, ZzzEyeHighlightPS, false, INVSRCALPHA)
+    ZzzEyeHighlightVS, ZzzEyeHighlightPS, true, INVSRCALPHA)
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeHighlightObjectSs, "object_ss", "8", true,
-    ZzzEyeHighlightVS, ZzzEyeHighlightPS, false, INVSRCALPHA)
+    ZzzEyeHighlightVS, ZzzEyeHighlightPS, true, INVSRCALPHA)
 
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeShadowObject, "object", "9", true, ZzzEyeShadowVS, ZzzEyeShadowPS,
-    false, INVSRCALPHA)
+    true, INVSRCALPHA)
 ZZZ_EYE_OVERLAY_TECHNIQUE(
     ZzzEyeShadowObjectSs, "object_ss", "9", true,
-    ZzzEyeShadowVS, ZzzEyeShadowPS, false, INVSRCALPHA)
+    ZzzEyeShadowVS, ZzzEyeShadowPS, true, INVSRCALPHA)
 
 technique ZzzEyeOverlayEdge < string MMDPass = "edge"; > { }
 technique ZzzEyeOverlayShadow < string MMDPass = "shadow"; > { }

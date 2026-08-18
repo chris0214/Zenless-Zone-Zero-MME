@@ -71,6 +71,6 @@ ZZZPost\ZZZPost.x
 
 ## 状态
 
-发布日期：2026-08-17
+发布日期：2026-08-18
 
 已完成三套不同角色的本地回归，但这些角色资源不随项目发布。正式验收标准见 [docs/RELEASE_AUDIT_CN.md](docs/RELEASE_AUDIT_CN.md)。
