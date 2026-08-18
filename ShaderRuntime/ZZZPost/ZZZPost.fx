@@ -21,7 +21,7 @@ float ZzzPostBloomIntensity <
     float UIMin = 0.0;
     float UIMax = 3.0;
     float UIStep = 0.01;
-> = 1.3;
+> = 0.0;
 
 float ZzzPostBloomThreshold <
     string UIName = "‹PŒõ‹«ŠE";

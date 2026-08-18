@@ -484,6 +484,20 @@ void RunZzzRuntimeContractSmokeTest()
                !Directory.Exists(Path.Combine(output, "templates")),
             "ZZZ 运行时复制混入了开发目录");
 
+        var postFx = Decode(File.ReadAllBytes(Path.Combine(output, "ZZZPost", "ZZZPost.fx")));
+        Assert(System.Text.RegularExpressions.Regex.IsMatch(
+                postFx,
+                @"float\s+ZzzPostExposure\s*<.*?>\s*=\s*1\.0\s*;",
+                System.Text.RegularExpressions.RegexOptions.Singleline),
+            "ZZZPost 默认曝光不是中性值 1.0");
+        Assert(System.Text.RegularExpressions.Regex.IsMatch(
+                postFx,
+                @"float\s+ZzzPostBloomIntensity\s*<.*?>\s*=\s*0\.0\s*;",
+                System.Text.RegularExpressions.RegexOptions.Singleline),
+            "ZZZPost 默认 Bloom 必须关闭，避免拖入附件后整张画面被抬白");
+        Assert(postFx.Contains("return saturate(ZzzPostControlTonemap);", StringComparison.Ordinal),
+            "ZZZPost GT Tonemap 必须由默认归零的控制器显式开启");
+
         var zzzProject = new StudioProject
         {
             RuntimeRoot = zzzRuntime,
