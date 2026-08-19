@@ -338,9 +338,28 @@ float ZzzViewGateZero <
 
 #if ZZZ_HAIR_FULL_CONTROLLER != 0
 #include "zzz_hair_controls.inc"
+
+// Keep the automatic camera-pitch behavior for the profile default, while
+// leaving the explicit vertical controller responsive at every pitch.
+float ZzzHairControlledShadowOffsetYWithPitch(
+    float baseValue,
+    float pitch)
+{
+    float automaticOffset = baseValue * saturate(pitch);
+    float manualOffset = 0.2 * ZzzHairControlSigned(
+        ZzzHairFaceShadowOffsetYP,
+        ZzzHairFaceShadowOffsetYM);
+    return clamp(automaticOffset + manualOffset, -0.2, 0.2);
+}
 #else
 float ZzzHairControlledShadowOffsetX(float baseValue) { return baseValue; }
 float ZzzHairControlledShadowOffsetY(float baseValue) { return baseValue; }
+float ZzzHairControlledShadowOffsetYWithPitch(
+    float baseValue,
+    float pitch)
+{
+    return baseValue * saturate(pitch);
+}
 float ZzzHairControlledShadowLightInfluence(float baseValue) { return baseValue; }
 float ZzzHairControlledShadowDepthBias(float baseValue) { return baseValue; }
 float ZzzHairControlledShadowOpacity(float baseValue) { return baseValue; }
@@ -745,7 +764,8 @@ ZzzHairFaceShadowVaryings ZzzHairFaceShadowVS(ZzzAttributes input)
     positionVS.x -= lightX
         * ZzzHairControlledShadowOffsetX(ZzzHairShadowOffsetX)
         * ZzzHairControlledShadowLightInfluence(ZzzHairShadowLightInfluence);
-    positionVS.y -= ZzzHairControlledShadowOffsetY(ZzzHairShadowOffsetY) * pitch;
+    positionVS.y -= ZzzHairControlledShadowOffsetYWithPitch(
+        ZzzHairShadowOffsetY, pitch);
     positionVS.z -= ZzzHairControlledShadowDepthBias(ZzzHairShadowDepthBias);
     output.positionCS = mul(
         float4(positionVS, 1.0), ZzzHairShadowProjection);

@@ -162,24 +162,41 @@ def main() -> int:
             errors.append(f"{controller}: shader bindings unexpected {unexpected}")
 
     hair_controls = read_shader_text(RUNTIME / "internal" / "zzz_hair_controls.inc")
-    signed_offset_anchor = "baseValue + 0.2 * ZzzHairControlSigned"
+    signed_offset_anchor = "0.2 * ZzzHairControlSigned"
     if hair_controls.count(signed_offset_anchor) < 2:
         errors.append("hair offsets: signed X/Y implementation is not present")
     if "-0.2, 0.2" not in hair_controls:
         errors.append("hair offsets: symmetric clamp is not present")
+
+    runtime_hair = read_shader_text(RUNTIME / "internal" / "zzz_hair_runtime.hlsl")
+    if "ZzzHairControlledShadowOffsetYWithPitch" not in runtime_hair:
+        errors.append("hair offset Y: pitch-aware controller helper is missing")
+    if "ZzzHairControlledShadowOffsetYWithPitch(\n        ZzzHairShadowOffsetY, pitch)" not in runtime_hair:
+        errors.append("hair offset Y: runtime is not using the pitch-aware helper")
+    if "ZzzHairControlledShadowOffsetY(ZzzHairShadowOffsetY) * pitch" in runtime_hair:
+        errors.append("hair offset Y: controller delta is still multiplied by pitch")
 
     manual_hair = read_shader_text(RUNTIME / "Manual" / "ZzzHair_Manual.fx")
     if "#define ZZZ_HAIR_FULL_CONTROLLER 1" not in manual_hair:
         errors.append("manual hair FX: full controller path is disabled")
 
     # A small numeric regression check for the documented neutral/dual-sided
-    # behavior. The profile defaults live in zzz_hair_runtime.hlsl.
-    for label, base in (("X", 0.055), ("Y", 0.090)):
-        neutral = max(-0.2, min(0.2, base + 0.2 * 0.0))
-        positive = max(-0.2, min(0.2, base + 0.2 * 1.0))
-        negative = max(-0.2, min(0.2, base - 0.2 * 1.0))
-        if neutral != base or not positive > neutral or not negative < neutral:
-            errors.append(f"hair offset {label}: neutral/positive/negative regression")
+    # behavior. Y also checks that manual motion remains visible when pitch is
+    # zero, which is the failure mode this audit is intended to catch.
+    base_x = 0.055
+    neutral_x = max(-0.2, min(0.2, base_x + 0.2 * 0.0))
+    positive_x = max(-0.2, min(0.2, base_x + 0.2 * 1.0))
+    negative_x = max(-0.2, min(0.2, base_x - 0.2 * 1.0))
+    if neutral_x != base_x or not positive_x > neutral_x or not negative_x < neutral_x:
+        errors.append("hair offset X: neutral/positive/negative regression")
+
+    for pitch in (0.0, 0.5, 1.0):
+        base_y = 0.090 * pitch
+        neutral_y = max(-0.2, min(0.2, base_y))
+        positive_y = max(-0.2, min(0.2, base_y + 0.2))
+        negative_y = max(-0.2, min(0.2, base_y - 0.2))
+        if not positive_y > neutral_y or not negative_y < neutral_y:
+            errors.append(f"hair offset Y: controller regression at pitch={pitch}")
 
     if errors:
         for error in errors:

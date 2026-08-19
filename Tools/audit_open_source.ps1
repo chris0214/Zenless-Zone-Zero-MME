@@ -9,30 +9,22 @@ $releaseRoot = if ([string]::IsNullOrWhiteSpace($Root)) {
     [System.IO.Path]::GetFullPath($Root)
 }
 
-function Get-RelativePath([string]$BasePath, [string]$Path) {
-    $base = [System.IO.Path]::GetFullPath($BasePath).TrimEnd([char]92, [char]47)
-    $full = [System.IO.Path]::GetFullPath($Path)
-    $prefix = $base + [System.IO.Path]::DirectorySeparatorChar
-    if ($full.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
-        return $full.Substring($prefix.Length)
-    }
-    return $full
-}
-
 if (-not (Test-Path -LiteralPath $releaseRoot -PathType Container)) {
     throw "Release root does not exist: $releaseRoot"
 }
 
 $errors = [System.Collections.Generic.List[string]]::new()
+$files = Get-ChildItem -LiteralPath $releaseRoot -Recurse -File
 
-$forbiddenSegments = @("bin", "obj", "artifacts", "build", "__pycache__", ".appdata", ".dotnet_home", ".nuget", "release")
-$files = Get-ChildItem -LiteralPath $releaseRoot -Recurse -File | Where-Object {
-    $segments = (Get-RelativePath $releaseRoot $_.FullName) -split '[\\/]'
-    ($segments | Where-Object { $_ -in $forbiddenSegments }).Count -eq 0
-}
+$forbiddenSegments = @("bin", "obj", "artifacts", "build", "__pycache__")
 foreach ($file in $files) {
-    $relative = Get-RelativePath $releaseRoot $file.FullName
+    $relative = [System.IO.Path]::GetRelativePath($releaseRoot, $file.FullName)
     $segments = $relative -split '[\\/]'
+    foreach ($segment in $forbiddenSegments) {
+        if ($segments -contains $segment) {
+            $errors.Add("Forbidden generated directory: $relative")
+        }
+    }
     if ($file.Name -match '(?i)goo') {
         $errors.Add("Forbidden public file name: $relative")
     }
@@ -59,7 +51,7 @@ foreach ($name in $unexpected) { $errors.Add("Unexpected controller: $name") }
 
 $allPmx = $files | Where-Object { $_.Extension -eq ".pmx" }
 foreach ($file in $allPmx) {
-    $relative = Get-RelativePath $releaseRoot $file.FullName
+    $relative = [System.IO.Path]::GetRelativePath($releaseRoot, $file.FullName)
     $expectedRelative = "ShaderRuntime\controller\$($file.Name)"
     if ($relative -ne $expectedRelative -or $file.Name -notin $expectedControllers) {
         $errors.Add("PMX outside the six-controller contract: $relative")
@@ -91,7 +83,7 @@ foreach ($file in $files | Where-Object { $_.Extension -in $textExtensions }) {
         $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
         $text = [System.Text.Encoding]::UTF8.GetString($bytes)
         if ($text -match '(?i)M:\\MMD相关的\\zzz|C:\\Users\\RELIC') {
-            $relative = Get-RelativePath $releaseRoot $file.FullName
+            $relative = [System.IO.Path]::GetRelativePath($releaseRoot, $file.FullName)
             $errors.Add("Local absolute path: $relative")
         }
     } catch {
