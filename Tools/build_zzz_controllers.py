@@ -51,6 +51,10 @@ CONTROLLERS = (
                 "前髪影深度+", "前髪影深度-", "前髪影濃度+", "前髪影濃度-", "前髪影赤+", "前髪影赤-",
                 "前髪影緑+", "前髪影緑-", "前髪影青+", "前髪影青-",
             )),
+            ("髪辺光", (
+                "辺光強+", "辺光強-", "辺光幅+", "辺光幅-", "辺光硬+", "辺光硬-",
+                "辺光赤+", "辺光赤-", "辺光緑+", "辺光緑-", "辺光青+", "辺光青-",
+            )),
         ),
     },
     {
@@ -209,9 +213,14 @@ def build_controller(source: Path, output: Path, profile: dict) -> dict:
 
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
+    controller_root = root / "ShaderRuntime" / "controller"
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", type=Path, default=root / "controller" / "ZzzHair_controller.pmx")
-    parser.add_argument("--output", type=Path, default=root / "controller")
+    parser.add_argument(
+        "--source",
+        type=Path,
+        default=controller_root / "ZzzHair_controller.pmx",
+    )
+    parser.add_argument("--output", type=Path, default=controller_root)
     args = parser.parse_args()
 
     source = args.source.resolve()

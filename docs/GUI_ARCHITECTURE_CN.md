@@ -14,10 +14,10 @@ GUI 不会用模糊匹配静默替换手动 MatCap，也不会因为某个角色
 
 ## 2. 已验收运行时
 
-正式运行时目录为开源包内的：
+正式运行时目录为：
 
 ```text
-ShaderRuntime
+M:\MMD相关的\zzz\ZZZ_MME
 ```
 
 当前交付链复用以下已验收模块：
@@ -61,8 +61,7 @@ SAO 已按视觉验收结论从正式流程移除，避免角色渲染变脏。
 
 - PMX 材质索引、中文名、英文名和角色分类。
 - PMX 原始 Base 贴图解析结果。
-- ZZZ GUI 公开 Base、Normal/N、Property/M、Attribute/A（数据字段为 `Rs`）和 Face SDF 槽。
-- `RD`、`LUT`、`ST`、`ColorMask`、`LipSpecular`、`HairLine` 仅保留在 schema 中读取旧工程；ZZZ 运行时不消费，也不在 GUI 中显示或自动匹配。
+- Base、Normal、Property、RD、RS、LUT、SDF、ST、ColorMask、LipSpecular、HairLine 槽。
 - 独立的 `ZzzMaterialProfile`。
 - 五个固定 `MatCapSlotBinding`，槽号严格为 1..5。
 - 官方 JSON 的纹理、浮点、整数、颜色和原始属性。
@@ -162,7 +161,7 @@ GUI 中旧版“派生 PMX”按钮只对 Legacy Endfield 运行时开放。选�
 - PMX 导入后执行保守初始分类。
 - 右侧显示角色中文说明、JSON 状态和实际槽位契约。
 - ZZZ 模式只开放当前角色真正消费的贴图框。
-- 新 GUI 不显示 RD、LUT、ST 等旧槽位；载入旧工程时仅在数据层保留原值，便于迁移和重新保存。
+- Legacy 模式保留 RD、LUT、ST 等旧槽位。
 - Face 只开放 Base 与 FaceLight/SDF。
 - Hair/Skin/Cloth 开放 Base 与 N/M/A。
 - Eye01/Eye02 只开放 Base。
@@ -265,7 +264,7 @@ JSON 候选缺图属于警告；正式材质必需贴图缺失、正式附件缺
 - 手动 MatCap 不被 JSON 覆盖。
 - 中性 MatCap BMP 的扩展名、文件头与最小尺寸。
 - 正式运行时复制与开发目录排除。
-- 控制器 345 个 morph 的精确读取与 EMM 加载。
+- 六个正式控制器 207 个 Morph 的精确读取与 EMM 加载。
 - Jane/Miyabi/Burnice 60 个真实材质分类。
 - Jane/Miyabi/Burnice 三套真实完整包生成。
 - 三角色原 PMX 哈希不变。

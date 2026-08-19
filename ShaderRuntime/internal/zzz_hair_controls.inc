@@ -169,14 +169,20 @@ float3 ZzzHairControlledHighlightColor()
 
 float ZzzHairControlledShadowOffsetX(float baseValue)
 {
-    return clamp(baseValue + 0.1 * ZzzHairControlSigned(
-        ZzzHairFaceShadowOffsetXP, ZzzHairFaceShadowOffsetXM), 0.0, 0.2);
+    // The controller is a signed displacement around the profile default.
+    // Keeping the range symmetric lets the negative morph move the shadow
+    // past the neutral position instead of stopping at zero.
+    return clamp(baseValue + 0.2 * ZzzHairControlSigned(
+        ZzzHairFaceShadowOffsetXP, ZzzHairFaceShadowOffsetXM), -0.2, 0.2);
 }
 
 float ZzzHairControlledShadowOffsetY(float baseValue)
 {
-    return clamp(baseValue + 0.1 * ZzzHairControlSigned(
-        ZzzHairFaceShadowOffsetYP, ZzzHairFaceShadowOffsetYM), 0.0, 0.2);
+    // Match the signed height-offset behavior used by the reference hair
+    // controller: +/- moves the face-shadow projection in opposite
+    // directions, with the neutral value preserved at zero controller input.
+    return clamp(baseValue + 0.2 * ZzzHairControlSigned(
+        ZzzHairFaceShadowOffsetYP, ZzzHairFaceShadowOffsetYM), -0.2, 0.2);
 }
 
 float ZzzHairControlledShadowLightInfluence(float baseValue)

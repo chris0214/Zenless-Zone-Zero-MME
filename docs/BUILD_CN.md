@@ -23,7 +23,7 @@ dotnet run --project EndfieldMaterialStudio.Tests\EndfieldMaterialStudio.Tests.c
 python Tools\build_zzz_controllers.py --source ShaderRuntime\controller\ZzzHair_controller.pmx --output ShaderRuntime\controller
 ```
 
-生成后必须核对 `controller-contract.json` 的六个哈希与 Morph 总数 195。
+生成后必须核对 `controller-contract.json` 的六个哈希与 Morph 总数 207。
 
 ## FX 编译
 

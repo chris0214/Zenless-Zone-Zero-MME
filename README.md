@@ -10,7 +10,7 @@
 
 - `ShaderRuntime/`：头发、面部、皮肤、眼睛、衣装、五槽 MatCap、HgShadow、EyeThrough、GT Tonemap 与 Bloom。
 - `ShaderRuntime/Manual/`：六类不依赖 GUI 的手写材质 FX 与两个共享 Profile；直接修改 FX 顶部的资源路径、Subset 和公开宏即可编译使用。
-- `ShaderRuntime/controller/`：六个正式控制器，共 195 个 Morph。
+- `ShaderRuntime/controller/`：六个正式控制器，共 207 个 Morph。
 - `Source/ZZZMaterialStudio/`：GUI 与打包器源码，工程 Schema 6。
 - `Tools/`：控制器生成、JSON Profile、FX 编译与合同验证工具。
 - `docs/`：架构、构建、控制器、JSON 工作流和发布审计说明。
@@ -44,7 +44,7 @@ dotnet run --project EndfieldMaterialStudio.Tests\EndfieldMaterialStudio.Tests.c
 运行 GUI：
 
 ```powershell
-dotnet run --project EndfieldMaterialStudio.App\EndfieldMaterialStudio.App.csproj -c Release
+dotnet run --project ZzzMaterialStudio.App\ZzzMaterialStudio.App.csproj -c Release
 ```
 
 GUI 中选择 `ShaderRuntime/` 作为 ZZZ Runtime，导入普通 PMX，然后按材质指定角色分类、贴图与 MatCap。手动 MatCap 始终优先；官方 JSON 只提供建议值和初始化值。
@@ -71,6 +71,6 @@ ZZZPost\ZZZPost.x
 
 ## 状态
 
-发布日期：2026-08-18
+发布日期：2026-08-19
 
 已完成三套不同角色的本地回归，但这些角色资源不随项目发布。正式验收标准见 [docs/RELEASE_AUDIT_CN.md](docs/RELEASE_AUDIT_CN.md)。

@@ -2,7 +2,7 @@
 
 发布前必须满足：
 
-- 六个正式控制器存在，Morph 总数为 195。
+- 六个正式控制器存在，Morph 总数为 207。
 - `controller/` 中不存在旧控制器或重复 Post 控制器。
 - 不包含角色 PMX/PMD/Blend/FBX。
 - 不包含官方 Material JSON、角色贴图、角色 MatCap 或角色 Profile。

@@ -7,12 +7,12 @@
 | 控制器 | Morph | 作用 |
 | --- | ---: | --- |
 | `ZzzShadow_controller.pmx` | 5 | 投影强度、硬度与关闭 |
-| `ZzzHair_controller.pmx` | 48 | 基础色、二分阴影、中央高光、刘海偏移投影 |
+| `ZzzHair_controller.pmx` | 60 | 基础色、二分阴影、中央高光、刘海偏移投影、屏幕空间边缘光 |
 | `ZzzFaceSkin_controller.pmx` | 34 | SDF、鼻影、面部高光、共享 Ramp、皮肤高光与边缘光 |
 | `ZzzClothMatCap_controller.pmx` | 65 | 衣装明暗、高光、边缘光及五槽 MatCap |
 | `ZzzEye_controller.pmx` | 22 | 眼球、瞳内光、眼高光与眼透 |
 | `ZzzPost_controller.pmx` | 21 | GT Tonemap、曝光与 Bloom |
-| 合计 | 195 | |
+| 合计 | 207 | |
 
 ## 五槽 MatCap
 
@@ -32,6 +32,14 @@
 - `球面全体強+/-`：对五个槽做统一总强度微调。
 
 五槽由材质 M.R 解码的 Material ID 选择，不是五层同时叠加。GUI 负责把贴图与槽位绑定，PMX 控制器不承担离散贴图选择，避免 MME 运行时出现路径和资源状态错误。
+
+## 头发偏移与边缘光
+
+`前髪影横+/-` 与 `前髪影縦+/-` 是围绕 FX 默认值的有符号位移：0 保持
+角色 Profile 的中性位置，正负值分别向相反方向移动，不会再被 `0..0.2`
+的单侧夹紧吞掉负向控制。`髪辺光` 分组中的 12 个 Morph 对应 ZMD 风格的
+屏幕空间边缘光强度、宽度、硬度和 RGB；只有启用 `ZZZ_HAIR_ZZZSHADOW_RIM`
+的头发 FX 才会显示这组效果。
 
 ## JSON 与控制器的优先级
 

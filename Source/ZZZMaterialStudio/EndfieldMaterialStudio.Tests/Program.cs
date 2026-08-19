@@ -1042,8 +1042,8 @@ void RunZzzControllerEmmSmokeTest()
             Path.Combine(zzzRuntime, "controller"),
             controllerFiles)
     };
-    Assert(project.ControllerBindings.Count == 195,
-        "没有完整读取六个正式 ZZZ 控制器的 195 个 morph");
+    Assert(project.ControllerBindings.Count == 207,
+        "没有完整读取六个正式 ZZZ 控制器的 207 个 morph");
     Assert(project.ControllerBindings.Count(binding =>
             binding.ControllerFile == "ZzzClothMatCap_controller.pmx") == 65,
         "衣装/MatCap 控制器不是预期的 65 个 morph");
@@ -1124,8 +1124,8 @@ void RunZzzControllerMigrationSmokeTest()
     Assert(project.ControllerBindings.All(binding =>
             expected.Contains(Path.GetFileName(binding.ControllerFile), StringComparer.OrdinalIgnoreCase)),
         "控制器迁移后仍残留旧 Endfield 控制绑定");
-    Assert(project.ControllerBindings.Count == 195,
-        "控制器迁移后没有重新读取六个正式控制器的 195 个 morph");
+    Assert(project.ControllerBindings.Count == 207,
+        "控制器迁移后没有重新读取六个正式控制器的 207 个 morph");
     Console.WriteLine("ZZZ_CONTROLLER_MIGRATION_TEST_PASSED");
 }
 

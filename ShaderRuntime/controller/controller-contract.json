@@ -24,8 +24,8 @@
     {
       "file": "ZzzHair_controller.pmx",
       "description": "ZZZ hair material controller.",
-      "morphCount": 48,
-      "sha256": "C3F172049655CB78B93B274506CFA7596C2FE2EB865C4CA6D0BA8BC8CBB7482E",
+      "morphCount": 60,
+      "sha256": "9868ECC9942BBA7DE4187686D012365808953CAB0EC6DAA6CA39B96E2EE4F777",
       "frames": [
         {
           "name": "髪基色",
@@ -93,6 +93,23 @@
             "前髪影緑-",
             "前髪影青+",
             "前髪影青-"
+          ]
+        },
+        {
+          "name": "髪辺光",
+          "morphs": [
+            "辺光強+",
+            "辺光強-",
+            "辺光幅+",
+            "辺光幅-",
+            "辺光硬+",
+            "辺光硬-",
+            "辺光赤+",
+            "辺光赤-",
+            "辺光緑+",
+            "辺光緑-",
+            "辺光青+",
+            "辺光青-"
           ]
         }
       ]

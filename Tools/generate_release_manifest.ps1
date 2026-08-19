@@ -9,6 +9,16 @@ $releaseRoot = if ([string]::IsNullOrWhiteSpace($Root)) {
     [System.IO.Path]::GetFullPath($Root)
 }
 
+function Get-RelativePath([string]$BasePath, [string]$Path) {
+    $base = [System.IO.Path]::GetFullPath($BasePath).TrimEnd([char]92, [char]47)
+    $full = [System.IO.Path]::GetFullPath($Path)
+    $prefix = $base + [System.IO.Path]::DirectorySeparatorChar
+    if ($full.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return $full.Substring($prefix.Length)
+    }
+    return $full
+}
+
 $contractPath = Join-Path $releaseRoot "ShaderRuntime\controller\controller-contract.json"
 $contract = Get-Content -LiteralPath $contractPath -Raw -Encoding UTF8 | ConvertFrom-Json
 $controllerMorphs = ($contract.controllers | Measure-Object -Property morphCount -Sum).Sum
@@ -16,7 +26,7 @@ $controllerMorphs = ($contract.controllers | Measure-Object -Property morphCount
 $manifest = [ordered]@{
     schemaVersion = 1
     format = "ZZZ.MME.OpenSourceAssetManifest"
-    releaseDate = "2026-08-18"
+    releaseDate = "2026-08-19"
     license = "GPL-3.0-only"
     projectAuthor = "克里斯提亚娜"
     included = @(
@@ -56,11 +66,16 @@ $json = $manifest | ConvertTo-Json -Depth 8
     [System.Text.UTF8Encoding]::new($false))
 
 $hashPath = Join-Path $releaseRoot "SHA256SUMS.txt"
+$forbiddenSegments = @("bin", "obj", "artifacts", "build", "__pycache__", ".appdata", ".dotnet_home", ".nuget", "release")
 $hashFiles = Get-ChildItem -LiteralPath $releaseRoot -Recurse -File |
-    Where-Object { $_.FullName -ne $hashPath } |
+    Where-Object {
+        $_.FullName -ne $hashPath -and
+        (((Get-RelativePath $releaseRoot $_.FullName) -split '[\\/]') |
+            Where-Object { $_ -in $forbiddenSegments }).Count -eq 0
+    } |
     Sort-Object FullName
 $lines = foreach ($file in $hashFiles) {
-    $relative = [System.IO.Path]::GetRelativePath($releaseRoot, $file.FullName).Replace('\', '/')
+    $relative = (Get-RelativePath $releaseRoot $file.FullName).Replace('\', '/')
     $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
     "$hash  $relative"
 }

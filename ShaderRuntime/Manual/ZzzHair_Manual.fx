@@ -22,7 +22,7 @@
 #define ZZZ_HAIR_HIGHLIGHT_SHAPE_4 0.0
 #define ZZZ_HAIR_HIGHLIGHT_SHAPE_5 0.0
 #define ZZZ_HAIR_ZZZSHADOW_RIM 1
-#define ZZZ_HAIR_FULL_CONTROLLER 0
+#define ZZZ_HAIR_FULL_CONTROLLER 1
 #define ZZZ_HAIR_FACE_SHADOW_PASS 1
 #define ZZZ_NORMAL_RESOURCE "../textures/common/neutral_normal.png"
 #define ZZZ_MATERIAL_RESOURCE "../textures/common/neutral_material.png"

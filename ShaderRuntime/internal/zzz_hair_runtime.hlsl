@@ -143,7 +143,7 @@
 #endif
 
 #ifndef ZZZ_HAIR_FULL_CONTROLLER
-#define ZZZ_HAIR_FULL_CONTROLLER 0
+#define ZZZ_HAIR_FULL_CONTROLLER 1
 #endif
 
 #ifndef ZZZ_HAIR_FACE_SHADOW_PASS
@@ -704,7 +704,7 @@ float3 ZzzHairShadowColor <
 > = ZZZ_HAIR_SHADOW_COLOR_DEFAULT;
 
 float ZzzHairShadowPitchMin <
-    string UIName = "发影俯仰结束";
+    string UIName = "发影俯仰开始";
     string UIWidget = "Slider";
     float UIMin = -1.0;
     float UIMax = 1.0;

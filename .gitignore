@@ -1,8 +1,6 @@
 **/bin/
 **/obj/
 **/artifacts/
-**/.nuget/
-**/.dotnet_home/
 **/__pycache__/
 *.user
 *.suo
@@ -10,3 +8,8 @@
 *.fxo
 *.zzzstudio.json
 generated_json_profiles/
+/release/
+.controller_audit_output/
+.appdata/
+.dotnet_home/
+.nuget/

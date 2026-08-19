@@ -1,85 +1,85 @@
 {
-  "schemaVersion": 1,
-  "format": "ZZZ.MME.OpenSourceAssetManifest",
-  "releaseDate": "2026-08-18",
-  "license": "GPL-3.0-only",
-  "projectAuthor": "克里斯提亚娜",
-  "included": [
-    {
-      "path": "ShaderRuntime/Manual",
-      "kind": "project-source",
-      "note": "GUI-independent material FX and editable profiles"
-    },
-    {
-      "path": "ShaderRuntime/internal",
-      "kind": "project-source",
-      "note": "Shared material runtime"
-    },
-    {
-      "path": "ShaderRuntime/controller",
-      "kind": "project-controller",
-      "note": "Six neutral PMX controllers"
-    },
-    {
-      "path": "ShaderRuntime/ZZZshadow",
-      "kind": "mixed",
-      "note": "Project wrapper plus redistributed HgShadow files"
-    },
-    {
-      "path": "ShaderRuntime/ZZZEyeThrough",
-      "kind": "project-source",
-      "note": "Dynamic EyeThrough runtime"
-    },
-    {
-      "path": "ShaderRuntime/ZZZPost",
-      "kind": "project-source",
-      "note": "GT Tonemap and Bloom"
-    },
-    {
-      "path": "Source/ZZZMaterialStudio",
-      "kind": "project-source",
-      "note": "GUI and package generator"
-    },
-    {
-      "path": "Tools",
-      "kind": "project-source",
-      "note": "Build, controller and audit tools"
-    }
-  ],
-  "excluded": [
-    "Character PMX/PMD/Blend/FBX",
-    "Official game Material JSON",
-    "Official or character textures and MatCaps",
-    "Character profiles, EMM files and generated FX",
-    "Build caches and local absolute paths"
-  ],
-  "thirdParty": [
-    {
-      "name": "HgShadow v0.0.4",
-      "author": "針金P / HariganeP",
-      "notice": "licenses/HgShadow_v004_Readme_CP932.txt"
-    },
-    {
-      "name": "HoyoToon 5.2.7",
-      "role": "GPL-compatible implementation reference",
-      "license": "licenses/HoyoToon_GPL-3.0.txt"
-    },
-    {
-      "name": "HS_Snow",
-      "role": "MME and HgShadow integration reference",
-      "notice": "licenses/HS_Snow_README_CN.md"
-    }
-  ],
-  "controllers": {
-    "count": 6,
-    "morphCount": 195.0,
-    "files": [
-      "ZzzShadow_controller.pmx",
-      "ZzzHair_controller.pmx",
-      "ZzzFaceSkin_controller.pmx",
-      "ZzzClothMatCap_controller.pmx",
-      "ZzzEye_controller.pmx",
-      "ZzzPost_controller.pmx"
-    ]
-  }
+    "schemaVersion":  1,
+    "format":  "ZZZ.MME.OpenSourceAssetManifest",
+    "releaseDate":  "2026-08-19",
+    "license":  "GPL-3.0-only",
+    "projectAuthor":  "鍏嬮噷鏂彁浜氬",
+    "included":  [
+                     {
+                         "path":  "ShaderRuntime/Manual",
+                         "kind":  "project-source",
+                         "note":  "GUI-independent material FX and editable profiles"
+                     },
+                     {
+                         "path":  "ShaderRuntime/internal",
+                         "kind":  "project-source",
+                         "note":  "Shared material runtime"
+                     },
+                     {
+                         "path":  "ShaderRuntime/controller",
+                         "kind":  "project-controller",
+                         "note":  "Six neutral PMX controllers"
+                     },
+                     {
+                         "path":  "ShaderRuntime/ZZZshadow",
+                         "kind":  "mixed",
+                         "note":  "Project wrapper plus redistributed HgShadow files"
+                     },
+                     {
+                         "path":  "ShaderRuntime/ZZZEyeThrough",
+                         "kind":  "project-source",
+                         "note":  "Dynamic EyeThrough runtime"
+                     },
+                     {
+                         "path":  "ShaderRuntime/ZZZPost",
+                         "kind":  "project-source",
+                         "note":  "GT Tonemap and Bloom"
+                     },
+                     {
+                         "path":  "Source/ZZZMaterialStudio",
+                         "kind":  "project-source",
+                         "note":  "GUI and package generator"
+                     },
+                     {
+                         "path":  "Tools",
+                         "kind":  "project-source",
+                         "note":  "Build, controller and audit tools"
+                     }
+                 ],
+    "excluded":  [
+                     "Character PMX/PMD/Blend/FBX",
+                     "Official game Material JSON",
+                     "Official or character textures and MatCaps",
+                     "Character profiles, EMM files and generated FX",
+                     "Build caches and local absolute paths"
+                 ],
+    "thirdParty":  [
+                       {
+                           "name":  "HgShadow v0.0.4",
+                           "author":  "閲濋噾P / HariganeP",
+                           "notice":  "licenses/HgShadow_v004_Readme_CP932.txt"
+                       },
+                       {
+                           "name":  "HoyoToon 5.2.7",
+                           "role":  "GPL-compatible implementation reference",
+                           "license":  "licenses/HoyoToon_GPL-3.0.txt"
+                       },
+                       {
+                           "name":  "HS_Snow",
+                           "role":  "MME and HgShadow integration reference",
+                           "notice":  "licenses/HS_Snow_README_CN.md"
+                       }
+                   ],
+    "controllers":  {
+                        "count":  6,
+                        "morphCount":  207,
+                        "files":  [
+                                      "ZzzShadow_controller.pmx",
+                                      "ZzzHair_controller.pmx",
+                                      "ZzzFaceSkin_controller.pmx",
+                                      "ZzzClothMatCap_controller.pmx",
+                                      "ZzzEye_controller.pmx",
+                                      "ZzzPost_controller.pmx"
+                                  ]
+                    }
 }
